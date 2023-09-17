@@ -10,8 +10,9 @@
 #include <pins.h>
 #endif
 
-#define VERSION "V2.0"           // N.B: document changes in README.md
+#define VERSION "V0.0"           // N.B: document changes in README.md
 #define MQTT_TOPIC_PREFIX "tide" // prefix for all MQTT topics
+#define NTP_TIME_INTERVAL "60000000"    // UPDATE EVERY HOUR
 
 // in WIFIConfig
 extern char myHostName[];
