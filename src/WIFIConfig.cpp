@@ -1,13 +1,9 @@
 #include <RedGlobals.h>
 #include <FS.h> //this needs to be first, or it all crashes and burns...
-
 #include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
-
-#ifdef ESP32
 #include <SPIFFS.h>
-#endif
 
-#include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
+
 // configuration parameters
 // Hostname, AP name & MQTT clientID
 char myHostName[64] = "RedTide";
@@ -18,7 +14,7 @@ char deviceLocation[64] = "NEW";
 char mqttServer[40] = "carbon.local";
 char mqttPort[6] = "443";
 char numberOfLED[16] = "6";
-char NoaaStation[16] = "888454";
+char NoaaStation[16] = NOAA_DEFAULT_STATION;
 
 // The extra parameters to be configured (can be either global or just in the setup)
 // After connecting, parameter.getValue() will get you the configured value
@@ -137,27 +133,15 @@ void readConfigFromDisk()
                 std::unique_ptr<char[]> buf(new char[size]);
 
                 configFile.readBytes(buf.get(), size);
-#if defined(ARDUINOJSON_VERSION_MAJOR) && ARDUINOJSON_VERSION_MAJOR >= 6
                 DynamicJsonDocument json(1024);
                 auto deserializeError = deserializeJson(json, buf.get());
                 serializeJson(json, Serial);
                 if (!deserializeError)
                 {
-#else
-                DynamicJsonBuffer jsonBuffer;
-                JsonObject &json = jsonBuffer.parseObject(buf.get());
-                json.printTo(Serial);
-                if (json.success())
-                {
-#endif
-                    Serial.println("\nparsed json");
-
-                    strcpy(mqttServer, json["mqtt_server"]);
-                    strcpy(mqttPort, json["mqtt_port"]);
-                    strcpy(numberOfLED, json["numberOfLED"]);
-                    strcpy(NoaaStation, json["NoaaStation"]);
-                    if (json["foo"]) console.println("Foo exists");
-                    else console.println("foo does not exist");
+                    if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
+                    if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
+                    if (json.containsKey("numberOfLED"))  strcpy(numberOfLED, json["numberOfLED"]);
+                    if (json.containsKey("NoaaStation"))  strcpy(NoaaStation, json["NoaaStation"]);
                 }
                 else
                 {

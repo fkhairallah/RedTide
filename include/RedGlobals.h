@@ -4,6 +4,7 @@
 #define RED_GLOBALS_H
 #include <dConsole.h>
 #include <Ticker.h>
+#include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 
 // include Pins
 #ifndef _PINS_H
@@ -12,7 +13,9 @@
 
 #define VERSION "V0.0"           // N.B: document changes in README.md
 #define MQTT_TOPIC_PREFIX "tide" // prefix for all MQTT topics
-#define NTP_TIME_INTERVAL "60000000"    // UPDATE EVERY HOUR
+#define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
+#define NOAA_DEFAULT_STATION "8722718"
+#define TIDE_UPDATE_INTERVAL 50000L
 
 // in WIFIConfig
 extern char myHostName[];
