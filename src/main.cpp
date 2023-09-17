@@ -5,6 +5,9 @@
 
 // Last time tide data was updated
 unsigned long lastTideUpdate;
+int minutesToNextTide;
+double heightOfNextTide;
+char typeOfNextTide[32];
 
 void getTide()
 {
@@ -52,7 +55,7 @@ void getTide()
   }
   else
   {
-    console.print("Error code: ");
+    console.print("Error getting NOAA data. code: ");
     console.println(httpResponseCode);
     http.end();
     return;
@@ -83,13 +86,13 @@ void getTide()
         tideTime.tm_year -= 1900;
 
         // see if this tide is in the future
-        if (difftime(mktime(&tideTime), mktime(&today)) > 0)
+        int d = difftime(mktime(&tideTime), mktime(&today));
+        if (d > 0)
         {
-          console.println("Next tide!");
-          String hl = tides[i]["type"];
-          console.print(t);
-          console.print(" ");
-          console.println(hl);
+          minutesToNextTide = d;
+          strcpy(typeOfNextTide,tides[i]["type"]);
+          heightOfNextTide = atof(tides[i]["v"]);
+          console.printf("Next %c tide in %d minutes (%f feet)", typeOfNextTide, minutesToNextTide, heightOfNextTide);
           break;
         }
       }
