@@ -5,7 +5,7 @@
 
 // Last time tide data was updated
 unsigned long lastTideUpdate;
-int minutesToNextTide;
+double minutesToNextTide;
 double heightOfNextTide;
 char typeOfNextTide[32];
 
@@ -51,7 +51,6 @@ void getTide()
     // console.print("HTTP Response code: ");
     // console.println(httpResponseCode);
     payload = http.getString();
-    
   }
   else
   {
@@ -65,35 +64,43 @@ void getTide()
 
   DynamicJsonDocument json(4096);
   auto deserializeError = deserializeJson(json, payload);
-  serializeJson(json, Serial);
+  // serializeJson(json, Serial);
   if (!deserializeError)
   {
     if (json.containsKey("predictions"))
     {
       JsonArray tides = json["predictions"];
-      console.print(tides.size());
-      console.println(" predictions");
+      console.printf("\r\nNOAA sent %d preditions\r\n",tides.size());
       for (int i = 0; i < tides.size(); i++)
       {
-        console.print(i);
-        console.print(": ");
-
         // get next tide time into a workable format
-        String t = tides[i]["t"];
+        char t[32], v[32], type[32];
+        strcpy(t, tides[i]["t"]);
+        strcpy(v, tides[i]["v"]);
+        strcpy(type, tides[i]["type"]);
+        Serial.printf("%d: %s %s %s\r\n", i, t, v, type);
+
+        int year, month, day, hour, min;
+        sscanf(t, "%d-%d-%d  %d:%d", &year, &month, &day, &hour, &min);
+
         struct tm tideTime;
-        sscanf(t.c_str(), "%d-%d-%d  %d:%d", &tideTime.tm_year, &tideTime.tm_mon, &tideTime.tm_mday, &tideTime.tm_hour, &tideTime.tm_min);
-        tideTime.tm_mon -= 1;
-        tideTime.tm_year -= 1900;
+        tideTime.tm_year = year - 1900;
+        tideTime.tm_mon = month - 1;
+        tideTime.tm_mday = day;
+        tideTime.tm_hour = hour;
+        tideTime.tm_min = min;
 
         // see if this tide is in the future
-        int d = difftime(mktime(&tideTime), mktime(&today));
-        if (d > 0)
+        time_t tidett = mktime(&tideTime);
+        time_t nowtt = mktime(&today);
+
+        if (tidett > nowtt)
         {
-          minutesToNextTide = d;
-          strcpy(typeOfNextTide,tides[i]["type"]);
-          heightOfNextTide = atof(tides[i]["v"]);
-          console.printf("Next %c tide in %d minutes (%f feet)", typeOfNextTide, minutesToNextTide, heightOfNextTide);
-          break;
+          minutesToNextTide = difftime(tidett, nowtt) / 60;
+          strcpy(typeOfNextTide, type);
+          heightOfNextTide = atof(v);
+         console.printf("Next %s tide in %.2f minutes (%f feet)\r\n\r\n", typeOfNextTide, minutesToNextTide, heightOfNextTide);
+        break;
         }
       }
     }
@@ -108,6 +115,8 @@ void setup()
   // configure wifi
   configureWIFI();
 
+  delay(2000);
+
   // init and get current time
   configTime(0, 0, "pool.ntp.org");
 
@@ -118,7 +127,6 @@ void setup()
   // last Time tide was updated
   lastTideUpdate = millis() + 2000 - TIDE_UPDATE_INTERVAL;
 
-  delay(1000);
 }
 
 void loop()

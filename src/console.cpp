@@ -15,7 +15,7 @@ dConsole console;
 
  * ********************************************************************************
 */
-#define CUSTOM_COMMANDS "Custom Commands: on, off, mode #, led #, test, noaa"
+#define CUSTOM_COMMANDS "Custom Commands: status, on, off, mode #, led #, test, noaa"
 
 void executeCustomCommands(char* commandString,char* parameterString)
 {
@@ -27,6 +27,16 @@ void executeCustomCommands(char* commandString,char* parameterString)
   //   console.println(parameterString);
   //   setLEDMode(atoi(parameterString));
   // }
+  if (strcmp(commandString, "status") == 0)
+  {
+    struct tm today;
+    if (!getLocalTime(&today))
+    {
+      console.println("Failed to obtain time");
+      return;
+    }
+    console.printf("%sNext %s tide in %.2f hours (%f feet)\r\n\r\n", asctime(&today), typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
+  }
 
   if (strcmp(commandString, "led") == 0)
   {

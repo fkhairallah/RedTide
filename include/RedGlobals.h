@@ -15,7 +15,12 @@
 #define MQTT_TOPIC_PREFIX "tide" // prefix for all MQTT topics
 #define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
 #define NOAA_DEFAULT_STATION "8722718"
-#define TIDE_UPDATE_INTERVAL 50000L
+#define TIDE_UPDATE_INTERVAL 500000L
+
+// in main
+extern double minutesToNextTide;
+extern double heightOfNextTide;
+extern char typeOfNextTide[];
 
 // in WIFIConfig
 extern char myHostName[];
