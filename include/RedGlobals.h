@@ -33,6 +33,7 @@ void configureWIFI();
 void readConfigFromDisk();
 void writeConfigToDisk();
 void resetConfiguration();
+void configureOTA(char*);
 
 // in console.ino
 extern dConsole console;
