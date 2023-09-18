@@ -30,6 +30,7 @@ extern char mqttPort[];
 extern char numberOfLED[]; // nunber of leds in the strings
 extern char NoaaStation[];
 void configureWIFI();
+void checkConnection ();
 void readConfigFromDisk();
 void writeConfigToDisk();
 void resetConfiguration();

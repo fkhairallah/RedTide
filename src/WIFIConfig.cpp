@@ -35,6 +35,11 @@ void saveConfigCallback()
     Serial.println("Should save config");
     shouldSaveConfig = true;
 }
+/*
+ * ********************************************************************************
+
+ * ********************************************************************************
+*/
 
 void configureWIFI()
 {
@@ -108,7 +113,34 @@ void configureWIFI()
     console.printf("local ip: "); console.println(WiFi.localIP());
 
 }
+/*
+ * ********************************************************************************
+ * This routine will check the Wifi status, and reset the ESP is unable to connect
+ *
+ * If all is well it initiates mDNS service & OTA process
+ *
+ * ********************************************************************************
+ */
 
+void checkConnection()
+{
+    if (WiFi.status() != WL_CONNECTED) // reconnect wifi
+    {
+        console.println("Not connected to WIFI.. give it ~10 seconds.");
+        delay(1000);
+        // if (secondsWithoutWIFI++ > 30)
+        // {
+        //   ESP.reset();
+        //   delay(5000);
+        // }
+    }
+
+    //MDNS.update(); // and refresh mDNS
+
+    // handle OTA -- if in progress stop talking to the heat pump and console so as not to disturb the upload
+    // THIS NEEDS TO BE THE FIRST ITEM IN LOOP
+    ArduinoOTA.handle();
+}
 /*
  * ********************************************************************************
 

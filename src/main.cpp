@@ -132,6 +132,7 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
+  checkConnection(); // check WIFI connection
 
   handleConsole(); // handle any commands from console
 
