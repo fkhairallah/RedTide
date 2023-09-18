@@ -105,7 +105,7 @@ void configureWIFI()
     if (shouldSaveConfig)
         writeConfigToDisk();
 
-    console.printf("local ip:%s\r\n",WiFi.localIP());
+    console.printf("local ip: "); console.println(WiFi.localIP());
 
 }
 
