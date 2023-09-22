@@ -24,9 +24,9 @@ extern char typeOfNextTide[];
 
 // in WIFIConfig
 extern char myHostName[];
-extern char deviceLocation[];
-extern char mqttServer[];
-extern char mqttPort[];
+// extern char deviceLocation[];
+// extern char mqttServer[];
+// extern char mqttPort[];
 extern char numberOfLED[]; // nunber of leds in the strings
 extern char NoaaStation[];
 void configureWIFI();

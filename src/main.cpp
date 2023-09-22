@@ -131,8 +131,8 @@ void setup()
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  checkConnection(); // check WIFI connection
+  // This should be the first line in loop();
+  checkConnection(); // check WIFI connection & Handle OTA
 
   handleConsole(); // handle any commands from console
 

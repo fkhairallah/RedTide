@@ -87,9 +87,9 @@ void handleConsole()
       console.print(MQTT_TOPIC_PREFIX);
       console.print(" ");
       console.println(VERSION);
-      console.printf("Host: %s - %s @", myHostName, deviceLocation);
+      console.printf("Host: %s @", myHostName);
       console.println(WiFi.localIP().toString());
-      console.println("Commands: ?, debug, location room, reset (Factory), reboot, quit");
+      console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
     }
     if (strcmp(console.commandString, "reset") == 0)
@@ -105,21 +105,6 @@ void handleConsole()
       //reset and try again, or maybe put it to deep sleep
       ESP.restart();
       delay(5000);
-    }
-    if (strcmp(console.commandString, "location") == 0)
-    {
-      strcpy(deviceLocation, console.parameterString);
-      writeConfigToDisk();
-      console.printf("location changed to %s\r\n", deviceLocation);
-      console.println("Change will take effect after next reboot");
-    }
-    if (strcmp(console.commandString, "mqtt") == 0)
-    {
-      strcpy(mqttServer, console.parameterString);
-      writeConfigToDisk();
-      console.print("MQTT server changed to ");
-      console.println(mqttServer);
-      //mqttDisconnect();
     }
     if (strcmp(console.commandString, "quit") == 0)
     {

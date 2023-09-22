@@ -5,6 +5,7 @@
 #include <ArduinoOTA.h>
 
 bool otaInProgress; // flags if OTA is in progress
+int secondsWithoutWIFI = 0; // counter the seconds without wifi
 
 // configuration parameters
 // Hostname, AP name & MQTT clientID
@@ -13,16 +14,16 @@ char deviceLocation[64] = "NEW";
 
 // define your default values here, if there are different values in config.json, they are overwritten.
 // length should be max size + 1
-char mqttServer[40] = "carbon.local";
-char mqttPort[6] = "443";
+// char mqttServer[40] = "carbon.local";
+// char mqttPort[6] = "443";
 char numberOfLED[16] = "6";
 char NoaaStation[16] = NOAA_DEFAULT_STATION;
 
 // The extra parameters to be configured (can be either global or just in the setup)
 // After connecting, parameter.getValue() will get you the configured value
 // id/name placeholder/prompt default length
-WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqttServer, 40);
-WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqttPort, 5);
+// WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqttServer, 40);
+// WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqttPort, 5);
 WiFiManagerParameter custom_number_led("numberOfLED", "Number of LEDs", numberOfLED, 16);
 WiFiManagerParameter custom_noaa_station("NoaaStation", "Noaa Station", NoaaStation, 16);
 
@@ -64,8 +65,8 @@ void configureWIFI()
 
 
     // add all your parameters here
-    wifiManager.addParameter(&custom_mqtt_server);
-    wifiManager.addParameter(&custom_mqtt_port);
+    // wifiManager.addParameter(&custom_mqtt_server);
+    // wifiManager.addParameter(&custom_mqtt_port);
     wifiManager.addParameter(&custom_number_led);
     wifiManager.addParameter(&custom_noaa_station);
 
@@ -79,7 +80,7 @@ void configureWIFI()
     // sets timeout until configuration portal gets turned off
     // useful to make it all retry or go to sleep
     // in seconds
-    // wifiManager.setTimeout(120);
+    wifiManager.setTimeout(120);
 
     // fetches ssid and pass and tries to connect
     // if it does not connect it starts an access point with the specified name
@@ -94,8 +95,20 @@ void configureWIFI()
         delay(5000);
     }
 
+    // we place a timeout which mean if no one connect to the hotspot
+    // we will restart the ESP32 so it has a chance to reconnect to
+    // regular wifi. This deals with power outage situtions where
+    // the ESP32 might come up before the WIFI router
+    if (WiFi.status() != WL_CONNECTED) {
+      console.println("no one connected to the wifi so I'm restarting...");
+      delay(3000);
+      ESP.restart();
+    }
+
+   
+
     // if you get here you have connected to the WiFi
-    Serial.println("connected...yeey! Enabling telent:)");
+    console.println("connected...yeey! Enabling telent:)");
     console.enableTelnet(23);
 
     // // read updated parameters
@@ -128,16 +141,19 @@ void checkConnection()
     {
         console.println("Not connected to WIFI.. give it ~10 seconds.");
         delay(1000);
-        // if (secondsWithoutWIFI++ > 30)
-        // {
-        //   ESP.reset();
-        //   delay(5000);
-        // }
+        if (secondsWithoutWIFI++ > 30)
+        {
+          ESP.restart();
+          delay(5000);
+        }
+    }
+    else
+    {
+      secondsWithoutWIFI = 0;
     }
 
     //MDNS.update(); // and refresh mDNS
 
-    // handle OTA -- if in progress stop talking to the heat pump and console so as not to disturb the upload
     // THIS NEEDS TO BE THE FIRST ITEM IN LOOP
     ArduinoOTA.handle();
 }
@@ -173,8 +189,8 @@ void readConfigFromDisk()
                 serializeJson(json, Serial);
                 if (!deserializeError)
                 {
-                    if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
-                    if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
+                    // if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
+                    // if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
                     if (json.containsKey("numberOfLED"))  strcpy(numberOfLED, json["numberOfLED"]);
                     if (json.containsKey("NoaaStation"))  strcpy(NoaaStation, json["NoaaStation"]);
                 }
@@ -201,14 +217,9 @@ void readConfigFromDisk()
 void writeConfigToDisk()
 {
     Serial.println("saving config");
-#if defined(ARDUINOJSON_VERSION_MAJOR) && ARDUINOJSON_VERSION_MAJOR >= 6
     DynamicJsonDocument json(1024);
-#else
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.createObject();
-#endif
-    json["mqtt_server"] = mqttServer;
-    json["mqtt_port"] = mqttPort;
+    // json["mqtt_server"] = mqttServer;
+    // json["mqtt_port"] = mqttPort;
     json["numberOfLED"] = numberOfLED;
     json["NoaaStation"] = NoaaStation;
 
@@ -219,13 +230,8 @@ void writeConfigToDisk()
         Serial.println("failed to open config file for writing");
     }
 
-#if defined(ARDUINOJSON_VERSION_MAJOR) && ARDUINOJSON_VERSION_MAJOR >= 6
     serializeJson(json, Serial);
     serializeJson(json, configFile);
-#else
-    json.printTo(Serial);
-    json.printTo(configFile);
-#endif
     configFile.close();
     // end save
 }
