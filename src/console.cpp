@@ -19,14 +19,14 @@ dConsole console;
 
 void executeCustomCommands(char* commandString,char* parameterString)
 {
-  // if (strcmp(commandString, "on") == 0)     setLEDPower((char *)"1");
-  // if (strcmp(commandString, "off") == 0)    setLEDPower((char *)"0");
-  // if (strcmp(commandString, "mode") == 0)
-  // {
-  //   console.print("Color mode: ");
-  //   console.println(parameterString);
-  //   setLEDMode(atoi(parameterString));
-  // }
+  if (strcmp(commandString, "on") == 0)     setLEDPower((char *)"1");
+  if (strcmp(commandString, "off") == 0)    setLEDPower((char *)"0");
+  if (strcmp(commandString, "mode") == 0)
+  {
+    console.print("Color mode: ");
+    console.println(parameterString);
+    setLEDMode(atoi(parameterString));
+  }
   if (strcmp(commandString, "status") == 0)
   {
     struct tm today;
@@ -46,11 +46,11 @@ void executeCustomCommands(char* commandString,char* parameterString)
     console.printf("Number of LEDs changed to %s\r\n", numberOfLED);
   }
 
-  // if (strcmp(commandString, "test") == 0)
-  // {
-  //   console.println(CUSTOM_COMMANDS);
-  //   testLED();
-  // }
+  if (strcmp(commandString, "test") == 0)
+  {
+    console.println(CUSTOM_COMMANDS);
+    testLED();
+  }
 
   if (strcmp(commandString, "noaa") == 0) {
     strcpy(NoaaStation, parameterString);
@@ -89,8 +89,30 @@ void handleConsole()
       console.println(VERSION);
       console.printf("Host: %s @", myHostName);
       console.println(WiFi.localIP().toString());
+      console.printf("MQTT Server %s, port: %s, LED: %s\r\n", mqttServer, mqttPort, numberOfLED);
       console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
+    }
+    if (strcmp(console.commandString, "debug") == 0)
+    {
+      debugMode = !debugMode;
+      console.print("Debug mode is now ");
+      console.println(debugMode);
+    }
+    if (strcmp(console.commandString, "location") == 0)
+    {
+      strcpy(deviceLocation, console.parameterString);
+      writeConfigToDisk();
+      console.printf("location changed to %s\r\n", deviceLocation);
+      console.println("Change will take effect after next reboot");
+    }
+    if (strcmp(console.commandString, "mqtt") == 0)
+    {
+      strcpy(mqttServer, console.parameterString);
+      writeConfigToDisk();
+      console.print("MQTT server changed to ");
+      console.println(mqttServer);
+      mqttDisconnect();
     }
     if (strcmp(console.commandString, "reset") == 0)
     {

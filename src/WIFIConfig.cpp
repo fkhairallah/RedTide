@@ -10,7 +10,11 @@ int secondsWithoutWIFI = 0; // counter the seconds without wifi
 // configuration parameters
 // Hostname, AP name & MQTT clientID
 char myHostName[64] = "RedTide";
-char deviceLocation[64] = "NEW";
+char deviceLocation[64] = "Shelf";
+char mqttServer[64] = "Carbon.local";
+char mqttPort[16] = "1883";
+char mqttUser[64] = "";
+char mqttPwd[64] = "";
 
 // define your default values here, if there are different values in config.json, they are overwritten.
 // length should be max size + 1
@@ -44,9 +48,6 @@ void saveConfigCallback()
 
 void configureWIFI()
 {
-    // put your setup code here, to run once:
-    Serial.begin(115200);
-    Serial.println();
 
     // clean FS, for testing
     // SPIFFS.format();
@@ -77,10 +78,12 @@ void configureWIFI()
     // defaults to 8%
     wifiManager.setMinimumSignalQuality();
 
+    // in seconds how long to wait for a wifi connection
+    wifiManager.setConnectTimeout(60);
+
     // sets timeout until configuration portal gets turned off
-    // useful to make it all retry or go to sleep
-    // in seconds
-    wifiManager.setTimeout(120);
+    // useful in power failure cases
+    wifiManager.setConfigPortalTimeout(180);
 
     // fetches ssid and pass and tries to connect
     // if it does not connect it starts an access point with the specified name
@@ -88,13 +91,13 @@ void configureWIFI()
     // and goes into a blocking loop awaiting configuration
     if (!wifiManager.autoConnect("AutoConnectAP", "password"))
     {
-        Serial.println("failed to connect and hit timeout");
+        console.println("failed to connect and hit timeout");
         delay(3000);
         // reset and try again, or maybe put it to deep sleep
         ESP.restart();
         delay(5000);
     }
-
+    
     // we place a timeout which mean if no one connect to the hotspot
     // we will restart the ESP32 so it has a chance to reconnect to
     // regular wifi. This deals with power outage situtions where
@@ -108,22 +111,25 @@ void configureWIFI()
    
 
     // if you get here you have connected to the WiFi
-    console.println("connected...yeey! Enabling telent:)");
+    if (debugMode) console.println("connected...yeey! Enabling telnet:)");
     console.enableTelnet(23);
 
     // // read updated parameters
     // strcpy(mqttServer, custom_mqtt_server.getValue());
     // strcpy(mqttPort, custom_mqtt_port.getValue());
     // strcpy(api_token, custom_api_token.getValue());
-    
-     // and OTA
+
+    // in this program start the config portal every time.
+    //wifiManager.startConfigPortal();
+
+    // and OTA
     configureOTA(myHostName);
 
     // save the custom parameters to FS
     if (shouldSaveConfig)
         writeConfigToDisk();
 
-    console.printf("local ip: "); console.println(WiFi.localIP());
+    if (debugMode) console.printf("local ip: "); console.println(WiFi.localIP());
 
 }
 /*
@@ -137,6 +143,9 @@ void configureWIFI()
 
 void checkConnection()
 {
+    // THIS NEEDS TO BE THE FIRST ITEM IN LOOP
+    ArduinoOTA.handle();
+
     if (WiFi.status() != WL_CONNECTED) // reconnect wifi
     {
         console.println("Not connected to WIFI.. give it ~10 seconds.");
@@ -154,8 +163,6 @@ void checkConnection()
 
     //MDNS.update(); // and refresh mDNS
 
-    // THIS NEEDS TO BE THE FIRST ITEM IN LOOP
-    ArduinoOTA.handle();
 }
 /*
  * ********************************************************************************
@@ -166,19 +173,16 @@ void checkConnection()
 */
 void readConfigFromDisk()
 {
-    Serial.println("mounting FS...");
+    if (debugMode) console.println("Reading config...");
 
     if (SPIFFS.begin())
     {
-        Serial.println("mounted file system");
         if (SPIFFS.exists("/config.json"))
         {
             // file exists, reading and loading
-            Serial.println("reading config file");
             File configFile = SPIFFS.open("/config.json", "r");
             if (configFile)
             {
-                Serial.println("opened config file");
                 size_t size = configFile.size();
                 // Allocate a buffer to store contents of the file.
                 std::unique_ptr<char[]> buf(new char[size]);
@@ -196,14 +200,14 @@ void readConfigFromDisk()
                 }
                 else
                 {
-                    Serial.println("failed to load json config");
+                    console.println("failed to load json config");
                 }
             }
         }
     }
     else
     {
-        Serial.println("failed to mount FS");
+        console.println("failed to mount FS");
     }
     // end read
 }
@@ -216,7 +220,7 @@ void readConfigFromDisk()
 */
 void writeConfigToDisk()
 {
-    Serial.println("saving config");
+    if (debugMode) console.println("saving config");
     DynamicJsonDocument json(1024);
     // json["mqtt_server"] = mqttServer;
     // json["mqtt_port"] = mqttPort;
@@ -227,7 +231,7 @@ void writeConfigToDisk()
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile)
     {
-        Serial.println("failed to open config file for writing");
+        console.println("failed to open config file for writing");
     }
 
     serializeJson(json, Serial);

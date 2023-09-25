@@ -5,6 +5,7 @@
 #include <dConsole.h>
 #include <Ticker.h>
 #include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
+#include <PubSubClient.h>
 
 // include Pins
 #ifndef _PINS_H
@@ -24,9 +25,11 @@ extern char typeOfNextTide[];
 
 // in WIFIConfig
 extern char myHostName[];
-// extern char deviceLocation[];
-// extern char mqttServer[];
-// extern char mqttPort[];
+extern char deviceLocation[];
+extern char mqttServer[];
+extern char mqttPort[];
+extern char mqttUser[];
+extern char mqttPwd[];
 extern char numberOfLED[]; // nunber of leds in the strings
 extern char NoaaStation[];
 void configureWIFI();
@@ -36,9 +39,31 @@ void writeConfigToDisk();
 void resetConfiguration();
 void configureOTA(char*);
 
+// in lighting
+void initializeLED();         // turn all LEDs off.
+void configLED();             // update with actual # of LED
+void testLED();               // test all LEDs
+void setLEDPower(char *mode); // set LED power
+void setLEDMode(int mode);    // & mode
+void executeLED();
+void stripFill(uint32_t color);
+void fillList(uint32_t list[], int count);
+void fillRainbow();
+
 // in console.ino
 extern dConsole console;
 void setupConsole();
 void handleConsole();
+
+// in MQTTConfig
+extern bool debugMode;
+void configureMQTT();
+bool checkMQTTConnection();
+void mqttDisconnect();
+void mqttCallback(char *topic, byte *payload, unsigned int length);
+
+// in tide.cpp
+void configureTide();
+void checkTide();
 
 #endif
