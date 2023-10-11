@@ -9,10 +9,10 @@
 // hardware pin definitions
 #define pgm_pin 0
 #define blueLED 2      // blue LED light (D1 Mini D4)
-#define LED_DATA_PIN_TOP 4 // LED data pin (D1 Mini D2)
-#define LED_DATA_PIN_BOTTOM 6 // LED data pin (D1 Mini D2)
-#define NUM_LEDS_TOP 20           // Max # of LEDS
-#define NUM_LEDS_BOTTOM 40           // Max # of LEDS
+#define LED_DATA_PIN_TOP 23 // LED data pin (ESP32 DevKit-V4)
+#define LED_DATA_PIN_BOTTOM 22     // LED data pin (ESP32 DevKit-V4)
+#define NUM_LEDS_TOP 64           // Max # of LEDS
+#define NUM_LEDS_BOTTOM 64           // Max # of LEDS
 
 //#define ONE_WIRE_BUS 3 // 1Wire Data in
 #define ONE_WIRE_BUS 14

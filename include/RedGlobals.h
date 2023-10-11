@@ -40,8 +40,7 @@ void resetConfiguration();
 void configureOTA(char*);
 
 // in lighting
-void initializeLED();         // turn all LEDs off.
-void configLED();             // update with actual # of LED
+void configureLED();          // update with actual # of LED
 void testLED();               // test all LEDs
 void setLEDPower(char *mode); // set LED power
 void setLEDMode(int mode);    // & mode

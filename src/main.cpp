@@ -15,6 +15,8 @@ void setup()
 
   configureTide();
 
+  configureLED();
+
 #ifdef TEMP_SENSOR_PRESENT
   // configure thermostat sensor
   tempAccumulator = 0;
