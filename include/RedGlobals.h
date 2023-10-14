@@ -12,7 +12,7 @@
 #include <pins.h>
 #endif
 
-#define VERSION "V0.0"           // N.B: document changes in README.md
+#define VERSION "V2.0"           // N.B: document changes in README.md
 #define MQTT_TOPIC_PREFIX "tide" // prefix for all MQTT topics
 #define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
 #define NOAA_DEFAULT_STATION "8722718"

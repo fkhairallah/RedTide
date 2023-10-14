@@ -89,7 +89,7 @@ void handleConsole()
       console.println(VERSION);
       console.printf("Host: %s @", myHostName);
       console.println(WiFi.localIP().toString());
-      console.printf("MQTT Server %s, port: %s, LED: %s\r\n", mqttServer, mqttPort, numberOfLED);
+      console.printf("MQTT Server %s, port: %s, %s, LED: %s\r\n", mqttServer, mqttPort, deviceLocation,  numberOfLED);
       console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
     }

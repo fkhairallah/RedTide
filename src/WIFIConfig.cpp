@@ -10,7 +10,7 @@ int secondsWithoutWIFI = 0; // counter the seconds without wifi
 // configuration parameters
 // Hostname, AP name & MQTT clientID
 char myHostName[64] = "RedTide";
-char deviceLocation[64] = "Shelf";
+char deviceLocation[64] = "shelf";
 char mqttServer[64] = "Carbon.local";
 char mqttPort[16] = "1883";
 char mqttUser[64] = "";
@@ -20,7 +20,7 @@ char mqttPwd[64] = "";
 // length should be max size + 1
 // char mqttServer[40] = "carbon.local";
 // char mqttPort[6] = "443";
-char numberOfLED[16] = "6";
+char numberOfLED[16] = "64";
 char NoaaStation[16] = NOAA_DEFAULT_STATION;
 
 // The extra parameters to be configured (can be either global or just in the setup)
