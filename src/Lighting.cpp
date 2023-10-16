@@ -29,27 +29,20 @@ uint32_t rgbList[] = {topShelf->Color(255, 0, 0), topShelf->Color(0, 255, 0), to
 void configureLED()
 {
 
-  console.printf("Configuring top shelf with %s LEDs\r\n", numberOfLED);
-  topShelf = new Adafruit_NeoPixel(atoi(numberOfLED), LED_DATA_PIN_TOP, NEO_GRB + NEO_KHZ800);
+  console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
+  topShelf = new Adafruit_NeoPixel(atoi(topLED), LED_DATA_PIN_TOP, NEO_GRB + NEO_KHZ800);
   topShelf->begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   topShelf->clear(); // Turn OFF all pixels ASAP
-  // topShelf->updateLength(atoi(numberOfLED));
-  // topShelf->begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  // topShelf->show();            // Turn OFF all pixels ASAP
-  // topShelf->setBrightness(LED_BRIGHTNESS); // Set BRIGHTNESS to about 1/5 (max = 255)
-
+  
   ledStripON = false;
   ledMode = 1;
   executeLED();
 
-  if (debugMode)
-    console.println(String(atoi(numberOfLED)) + " LEDS configured");
 }
 
 // show a green pattern on the LED strip
 void testLED()
 {
-  console.printf("%i vs %i\r\n", atoi(numberOfLED), topShelf->numPixels());
 
   topShelf->clear();
 
@@ -170,11 +163,11 @@ void executeLED()
 void stripFill(uint32_t color)
 {
 
-  for (int i = 0; i < atoi(numberOfLED); i++)
+  for (int i = 0; i < topShelf->numPixels(); i++)
   {
     topShelf->setPixelColor(i, color);
     topShelf->show();
-    console.printf("LED %d set to %d\r\n", i, color);
+    //console.printf("LED %d set to %d\r\n", i, color);
     delay(50);
   }
 }

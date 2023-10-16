@@ -9,26 +9,26 @@ int secondsWithoutWIFI = 0; // counter the seconds without wifi
 
 // configuration parameters
 // Hostname, AP name & MQTT clientID
+// define your default values here, if there are different values in config.json, they are overwritten.
+// length should be max size + 1
 char myHostName[64] = "RedTide";
 char deviceLocation[64] = "shelf";
 char mqttServer[64] = "Carbon.local";
 char mqttPort[16] = "1883";
 char mqttUser[64] = "";
 char mqttPwd[64] = "";
-
-// define your default values here, if there are different values in config.json, they are overwritten.
-// length should be max size + 1
-// char mqttServer[40] = "carbon.local";
-// char mqttPort[6] = "443";
-char numberOfLED[16] = "64";
+char topLED[16] = "48";
+char bottomLED[16] = "64";
 char NoaaStation[16] = NOAA_DEFAULT_STATION;
 
 // The extra parameters to be configured (can be either global or just in the setup)
 // After connecting, parameter.getValue() will get you the configured value
 // id/name placeholder/prompt default length
-// WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqttServer, 40);
-// WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqttPort, 5);
-WiFiManagerParameter custom_number_led("numberOfLED", "Number of LEDs", numberOfLED, 16);
+WiFiManagerParameter custom_deviceLocation("location", "Device Location", deviceLocation, 64);
+WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqttServer, 40);
+WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqttPort, 5);
+WiFiManagerParameter custom_top_led("topLED", "Top LEDs", topLED, 16);
+WiFiManagerParameter custom_bottom_led("bottomLED", "Bottom LEDs", bottomLED, 16);
 WiFiManagerParameter custom_noaa_station("NoaaStation", "Noaa Station", NoaaStation, 16);
 
 // flag for saving data
@@ -66,9 +66,11 @@ void configureWIFI()
 
 
     // add all your parameters here
-    // wifiManager.addParameter(&custom_mqtt_server);
-    // wifiManager.addParameter(&custom_mqtt_port);
-    wifiManager.addParameter(&custom_number_led);
+    wifiManager.addParameter(&custom_deviceLocation);
+    wifiManager.addParameter(&custom_mqtt_server);
+    wifiManager.addParameter(&custom_mqtt_port);
+    wifiManager.addParameter(&custom_top_led);
+    wifiManager.addParameter(&custom_bottom_led);
     wifiManager.addParameter(&custom_noaa_station);
 
     // reset settings - for testing
@@ -192,11 +194,13 @@ void readConfigFromDisk()
                 auto deserializeError = deserializeJson(json, buf.get());
                 serializeJson(json, Serial);
                 if (!deserializeError)
-                {
-                    // if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
-                    // if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
-                    if (json.containsKey("numberOfLED"))  strcpy(numberOfLED, json["numberOfLED"]);
-                    if (json.containsKey("NoaaStation"))  strcpy(NoaaStation, json["NoaaStation"]);
+                { 
+                  if (json.containsKey("deviceLocation"))  strcpy(deviceLocation, json["deviceLocation"]);
+                  if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
+                  if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
+                  if (json.containsKey("topLED"))  strcpy(topLED, json["topLED"]);
+                  if (json.containsKey("bottomLED"))  strcpy(bottomLED, json["bottomLED"]);
+                  if (json.containsKey("NoaaStation")) strcpy(NoaaStation, json["NoaaStation"]);
                 }
                 else
                 {
@@ -222,11 +226,12 @@ void writeConfigToDisk()
 {
     if (debugMode) console.println("saving config");
     DynamicJsonDocument json(1024);
-    // json["mqtt_server"] = mqttServer;
-    // json["mqtt_port"] = mqttPort;
-    json["numberOfLED"] = numberOfLED;
+    json["deviceLocation"] = deviceLocation;
+    json["mqtt_server"] = mqttServer;
+    json["mqtt_port"] = mqttPort;
+    json["topLED"] = topLED;
+    json["bottomLED"] = bottomLED;
     json["NoaaStation"] = NoaaStation;
-
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile)
@@ -290,44 +295,44 @@ void configureOTA(char *hostName)
     }
 
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    console.println("Start updating " + type);
+    console.println("OTA Start updating " + type);
   });
 
   ArduinoOTA.onEnd([]() {
     otaInProgress = false;
-    console.println("\nEnd");
+    console.println("\nOTA End");
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     char buffer[100];
-    sprintf(buffer, "Progress: %u%%\r", (progress / (total / 100)));
+    sprintf(buffer, "OTA Progress: %u%%\r", (progress / (total / 100)));
     console.println(buffer);
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
     otaInProgress = false;
     char buffer[100];
-    sprintf(buffer, "Error[%u]: ", error);
+    sprintf(buffer, "OTA Error[%u]: ", error);
     console.println(buffer);
     if (error == OTA_AUTH_ERROR)
     {
-      console.println("Auth Failed");
+      console.println("OTA Auth Failed");
     }
     else if (error == OTA_BEGIN_ERROR)
     {
-      console.println("Begin Failed");
+      console.println("OTA Begin Failed");
     }
     else if (error == OTA_CONNECT_ERROR)
     {
-      console.println("Connect Failed");
+      console.println("OTA Connect Failed");
     }
     else if (error == OTA_RECEIVE_ERROR)
     {
-      console.println("Receive Failed");
+      console.println("OTA Receive Failed");
     }
     else if (error == OTA_END_ERROR)
     {
-      console.println("End Failed");
+      console.println("OTA End Failed");
     }
   });
 

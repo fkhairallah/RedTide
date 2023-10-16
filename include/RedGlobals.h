@@ -17,6 +17,7 @@
 #define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
 #define NOAA_DEFAULT_STATION "8722718"
 #define TIDE_UPDATE_INTERVAL 500000L
+#define STEPPER_NUMBER_STEPS 2048 // 28BYJ-48 motor
 
 // in main
 extern double minutesToNextTide;
@@ -30,7 +31,8 @@ extern char mqttServer[];
 extern char mqttPort[];
 extern char mqttUser[];
 extern char mqttPwd[];
-extern char numberOfLED[]; // nunber of leds in the strings
+extern char topLED[]; // nunber of leds in the top string
+extern char bottomLED[]; // nunber of leds in the bottom string
 extern char NoaaStation[];
 void configureWIFI();
 void checkConnection ();
@@ -64,5 +66,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length);
 // in tide.cpp
 void configureTide();
 void checkTide();
+void testStepper();
+void parkStepper();
 
 #endif

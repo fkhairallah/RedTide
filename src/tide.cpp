@@ -1,12 +1,44 @@
 #include <RedGlobals.h>
 #include <time.h>
 #include <HTTPClient.h>
+#include <Stepper.h>
+
+#define COIL_A1 13
+#define COIL_A2 14
+#define COIL_B3 12
+#define COIL_B4 27
 
 // Last time tide data was updated
 unsigned long lastTideUpdate;
 double minutesToNextTide;
 double heightOfNextTide;
 char typeOfNextTide[32];
+
+// stepper motor configuration for 28BYJ-48 motor
+Stepper stepper(STEPPER_NUMBER_STEPS, COIL_A1, COIL_A2, COIL_B3, COIL_B4);
+
+void testStepper()
+{
+    stepper.setSpeed(10);
+    // step one revolution  in one direction:
+    console.println("1 rev clockwise");
+    stepper.step(STEPPER_NUMBER_STEPS);
+    delay(500);
+
+    // step one revolution in the other direction:
+    console.println("1 rev counterclockwise");
+    stepper.step(-1000);
+    delay(500);
+
+    parkStepper();
+}
+void parkStepper() {
+
+    digitalWrite(COIL_A1, 0);
+    digitalWrite(COIL_A2, 0);
+    digitalWrite(COIL_B3, 0);
+    digitalWrite(COIL_B4, 0);
+}
 
 /*
  * ********************************************************************************

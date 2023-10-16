@@ -39,7 +39,7 @@ void loop()
 
   checkMQTTConnection(); // check MQTT
 
-  checkTide();           // check tide
+  //checkTide();           // check tide
 
   handleConsole(); // handle any commands from console
 

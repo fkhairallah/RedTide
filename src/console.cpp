@@ -15,7 +15,7 @@ dConsole console;
 
  * ********************************************************************************
 */
-#define CUSTOM_COMMANDS "Custom Commands: status, on, off, mode #, led #, test, noaa"
+#define CUSTOM_COMMANDS "Custom Commands: status, on, off, mode #, topled #, bottomled #, test, noaa"
 
 void executeCustomCommands(char* commandString,char* parameterString)
 {
@@ -38,18 +38,26 @@ void executeCustomCommands(char* commandString,char* parameterString)
     console.printf("%sNext %s tide in %.2f hours (%f feet)\r\n\r\n", asctime(&today), typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
   }
 
-  if (strcmp(commandString, "led") == 0)
+  if (strcmp(commandString, "topled") == 0)
   {
-    strcpy(numberOfLED, parameterString);
-//    configLED();
+    strcpy(topLED, parameterString);
     writeConfigToDisk();
-    console.printf("Number of LEDs changed to %s\r\n", numberOfLED);
+    configureLED();
+    console.printf("Number of LEDs changed to %s\r\n", topLED);
+  }
+  if (strcmp(commandString, "bottomled") == 0)
+  {
+    strcpy(bottomLED, parameterString);
+    writeConfigToDisk();
+    configureLED();
+    console.printf("Number of LEDs changed to %s\r\n", bottomLED);
   }
 
   if (strcmp(commandString, "test") == 0)
   {
     console.println(CUSTOM_COMMANDS);
-    testLED();
+    //testLED();
+    testStepper();
   }
 
   if (strcmp(commandString, "noaa") == 0) {
@@ -89,7 +97,7 @@ void handleConsole()
       console.println(VERSION);
       console.printf("Host: %s @", myHostName);
       console.println(WiFi.localIP().toString());
-      console.printf("MQTT Server %s, port: %s, %s, LED: %s\r\n", mqttServer, mqttPort, deviceLocation,  numberOfLED);
+      console.printf("MQTT Server %s, port: %s, %s, LEDs: %s/%s\r\n", mqttServer, mqttPort, deviceLocation,  topLED,bottomLED);
       console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
     }

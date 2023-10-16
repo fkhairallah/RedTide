@@ -13,7 +13,8 @@ WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 
 // mqtt client settings
-char mqtt_topic[64] = "tide/default";                                         //contains current settings
+char clientName[64];
+char mqtt_topic[64] = "xtide/default";                                         //contains current settings
 char mqtt_temperature_topic[64] = "tide/default/temperature";                 //temperature
 #ifdef DISPLAY_PRESENT
 char mqtt_requiredTemperature_topic[64] = "led/default/requiredTemperature"; //listens for commands
@@ -44,18 +45,18 @@ bool retain = true; //change to false to disable mqtt retain
 // configure all topics based on function & location
 void configureTopics() 
 {
-    // heatpump/location/...
+  sprintf(clientName, "%s-%s", myHostName, deviceLocation);
   sprintf(mqtt_topic, "%s/%s", MQTT_TOPIC_PREFIX, deviceLocation);
-  sprintf(mqtt_debug_topic, "%s/%s/debug", MQTT_TOPIC_PREFIX, deviceLocation);
-  sprintf(mqtt_debug_set_topic, "%s/%s/debug/set", MQTT_TOPIC_PREFIX, deviceLocation);
+  sprintf(mqtt_debug_topic, "%s/debug", mqtt_topic);
+  sprintf(mqtt_debug_set_topic, "%s/debug/set", mqtt_topic);
 #ifdef DISPLAY_PRESENT
-  sprintf(mqtt_requiredTemperature_topic, "%s/%s/requiredTemperature", MQTT_TOPIC_PREFIX, deviceLocation);
+  sprintf(mqtt_requiredTemperature_topic, "%s/requiredTemperature", mqtt_topic);
 #endif
 #ifdef TEMP_SENSOR_PRESENT
-  sprintf(mqtt_temperature_topic, "%s/%s/temperature", MQTT_TOPIC_PREFIX, deviceLocation);
+  sprintf(mqtt_temperature_topic, "%s/temperature", mqtt_topic);
 #endif
-  sprintf(mqtt_led_command, "%s/%s/set", MQTT_TOPIC_PREFIX, deviceLocation);
-  sprintf(mqtt_led_mode, "%s/%s/mode", MQTT_TOPIC_PREFIX, deviceLocation);
+  sprintf(mqtt_led_command, "%s/set", mqtt_topic);
+  sprintf(mqtt_led_mode, "%s/mode", mqtt_topic);
 }
 
 
@@ -67,10 +68,10 @@ void subscribeToTopics()
 #ifdef DISPLAY_PRESENT
       mqtt_client.subscribe(mqtt_requiredTemperature_topic);
 #endif
-      mqtt_client.subscribe(mqtt_led_command);
-      mqtt_client.subscribe(mqtt_led_mode);
+      console.printf("Sub to: %s, status=%i\n",mqtt_led_command,mqtt_client.subscribe(mqtt_led_command));
+      console.printf("Sub to: %s, status=%i\n",mqtt_led_mode,mqtt_client.subscribe(mqtt_led_mode));
 
-      mqtt_client.subscribe(mqtt_debug_set_topic);
+      console.printf("Sub to: %s, status=%i\n", mqtt_debug_set_topic, mqtt_client.subscribe(mqtt_debug_set_topic));
 }
 
 // This routine is called when an MQTT message is received 
@@ -218,23 +219,20 @@ void configureMQTT()
 
 bool checkMQTTConnection() {
 
-  if (mqtt_client.connected()) 
+  // loop through the client
+  mqtt_client.loop();
+
+  if (!mqtt_client.connected()) 
   {
-     // loop through the client
-     mqtt_client.loop();
-  }
-  else 
-  {
-    // set server name
-    mqtt_client.setServer(mqttServer, atoi(mqttPort) );
+    console.printf("Status %i - ", mqtt_client.state());
 
     // Attempt to connect
-    if (mqtt_client.connect(myHostName))
+    if (mqtt_client.connect(clientName))
     {
       subscribeToTopics();
-      console.println("Connected to MQTT");
+      console.printf("Connected to MQTT as %s\n", clientName);
       char str[128];
-      sprintf(str, "%s %s [%s] MQTT{%s,%s}  IP:%i.%i.%i.%i", MQTT_TOPIC_PREFIX, VERSION, deviceLocation, mqttServer, mqttPort, WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
+      sprintf(str, "%s %s: @[%s] IP:%i.%i.%i.%i", clientName, VERSION, deviceLocation, WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
       mqtt_client.publish(mqtt_debug_topic, str, true);
       secondsWithoutMQTT = 0;
       return true;
