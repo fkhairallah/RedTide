@@ -14,6 +14,12 @@
 #define NUM_LEDS_TOP 64           // Max # of LEDS
 #define NUM_LEDS_BOTTOM 64           // Max # of LEDS
 
+#define COIL_A1 13
+#define COIL_A2 14
+#define COIL_B3 12
+#define COIL_B4 27
+#define LIMIT_SWITCH 26
+
 //#define ONE_WIRE_BUS 3 // 1Wire Data in
 #define ONE_WIRE_BUS 14
 

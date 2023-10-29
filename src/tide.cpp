@@ -3,36 +3,93 @@
 #include <HTTPClient.h>
 #include <Stepper.h>
 
-#define COIL_A1 13
-#define COIL_A2 14
-#define COIL_B3 12
-#define COIL_B4 27
+
+// range of dial -- keep motor operating within
+#define STEPPER_MAX_RANGE 4500L // measured
+
+// total ide period is 12 hours and 50 minutes so half of that (high-low) is 385 minutes
+// Divide range by 385 to get the steps per minutes
+#define STEPS_PER_MINUTE 11.688
 
 // Last time tide data was updated
 unsigned long lastTideUpdate;
 double minutesToNextTide;
 double heightOfNextTide;
 char typeOfNextTide[32];
+bool disableStepper = true;
+
+int markerLocation;
 
 // stepper motor configuration for 28BYJ-48 motor
 Stepper stepper(STEPPER_NUMBER_STEPS, COIL_A1, COIL_A2, COIL_B3, COIL_B4);
 
-void testStepper()
-{
+// this routine 
+// it configures the limit switch
+/**
+ * @brief This routine configures all the necessary items for proper operation of the stepper motor:
+ * 1. Configures the limit switch
+ * 2. home the marker so we start from a know position
+ *
+ */
+void homeStepper() {
+
+
+    console.println("Homing Stepper...");
+    markerLocation = 0;
+
+    pinMode(LIMIT_SWITCH, INPUT_PULLUP);
+
     stepper.setSpeed(10);
-    // step one revolution  in one direction:
-    console.println("1 rev clockwise");
-    stepper.step(STEPPER_NUMBER_STEPS);
-    delay(500);
 
-    // step one revolution in the other direction:
-    console.println("1 rev counterclockwise");
-    stepper.step(-1000);
-    delay(500);
+    // if we're pegged -- move down then try hominh
+    if (digitalRead(LIMIT_SWITCH) == 0) {
+        stepper.step(-1000);
+        console.println("Limit hit--- descending a bit...");
+    }
 
-    parkStepper();
+    while(digitalRead(LIMIT_SWITCH)!= 0) {
+        stepper.step(50);
+        markerLocation += 50;
+        if (markerLocation >= STEPPER_MAX_RANGE)
+        {
+            disableStepper = true;
+            idleStepper();
+            console.println("Cannot Home marker. Too many steps...");
+            return;
+        }
+    }
+
+    // we've successfully arrived home.
+    idleStepper();
+    disableStepper = false;
+    markerLocation = STEPPER_MAX_RANGE;
+    console.println("Homing successfull!");
+
 }
-void parkStepper() {
+
+
+
+// take steps while making sure that we stay within range
+// n can be positive (move dial up) or negative (move dial down)
+void step(int n)
+{
+    if (disableStepper) return;
+
+    // make sure we do not exceed the limit
+    if ( (markerLocation + n) < 0 ) n = -markerLocation;
+    if ( (markerLocation + n) >= STEPPER_MAX_RANGE) n = STEPPER_MAX_RANGE - markerLocation;
+
+    // set soeed takse the steps then idle the motor
+    stepper.setSpeed(10);
+    stepper.step(n);
+    idleStepper();
+
+    // update the marker location
+    markerLocation += n;
+}
+
+
+void idleStepper() {
 
     digitalWrite(COIL_A1, 0);
     digitalWrite(COIL_A2, 0);
@@ -61,6 +118,10 @@ void getTide()
     {
         console.println("Failed to obtain time");
         return;
+    }
+    else
+    {
+        console.printf("Time now is %d:%d ", today.tm_hour, today.tm_min);
     }
 
     // the time library has a trick to do time calculation. You can
@@ -132,6 +193,7 @@ void getTide()
                 tideTime.tm_mday = day;
                 tideTime.tm_hour = hour;
                 tideTime.tm_min = min;
+                tideTime.tm_isdst = today.tm_isdst; // make sure DST matches
 
                 // see if this tide is in the future
                 time_t tidett = mktime(&tideTime);
@@ -160,6 +222,9 @@ void getTide()
 
 void configureTide()
 {
+    // zero the stepper motor by returning it to the home position
+    homeStepper();
+
     // init and get current time
     configTime(0, 0, "pool.ntp.org");
 
@@ -180,6 +245,8 @@ void configureTide()
 
 void checkTide()
 {
+    double markerNewLocation;
+    int stepsToTake; 
 
     // check on time every so often
     if ((millis() - lastTideUpdate) > TIDE_UPDATE_INTERVAL)
@@ -187,5 +254,16 @@ void checkTide()
 
         getTide();
         lastTideUpdate = millis();
+
+        if (typeOfNextTide == "L")
+            markerNewLocation =  (385 - minutesToNextTide) * STEPS_PER_MINUTE;
+        else
+            markerNewLocation = minutesToNextTide * STEPS_PER_MINUTE;
+
+        stepsToTake = (int)markerNewLocation - markerLocation;
+
+        console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
+
+        step(stepsToTake);
     }
 }

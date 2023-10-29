@@ -35,7 +35,8 @@ void executeCustomCommands(char* commandString,char* parameterString)
       console.println("Failed to obtain time");
       return;
     }
-    console.printf("%sNext %s tide in %.2f hours (%f feet)\r\n\r\n", asctime(&today), typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
+    console.printf("%sNext %s tide in %.2f hours (%f feet)\n", asctime(&today), typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
+    console.printf("Marker at %i\r\n", markerLocation);
   }
 
   if (strcmp(commandString, "topled") == 0)
@@ -55,9 +56,15 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
   if (strcmp(commandString, "test") == 0)
   {
-    console.println(CUSTOM_COMMANDS);
     //testLED();
-    testStepper();
+    //testStepper();
+    console.println(digitalRead(LIMIT_SWITCH));
+  }
+
+  if (strcmp(commandString, "step") == 0)
+  {
+    step(atoi(parameterString));
+    console.printf("Moved %s - now @%i\n", parameterString, markerLocation);
   }
 
   if (strcmp(commandString, "noaa") == 0) {

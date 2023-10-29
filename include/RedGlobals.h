@@ -64,9 +64,11 @@ void mqttDisconnect();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 
 // in tide.cpp
+extern int markerLocation;
 void configureTide();
 void checkTide();
 void testStepper();
-void parkStepper();
+void step(int n);
+void idleStepper();
 
 #endif
