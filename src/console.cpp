@@ -8,6 +8,18 @@
 
 dConsole console;
 
+void printLocalTime()
+{
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+  {
+    console.println("Failed to obtain time");
+    return;
+  }
+  console.print(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  console.printf(" DST=%s\n", timeinfo.tm_isdst?"TRUE":"FALSE");
+}
+
 /*
  * ********************************************************************************
 
@@ -15,7 +27,7 @@ dConsole console;
 
  * ********************************************************************************
 */
-#define CUSTOM_COMMANDS "Custom Commands: status, on, off, mode #, topled #, bottomled #, test, noaa"
+#define CUSTOM_COMMANDS "Custom Commands: step n, home, status, on, off, mode #, topled #, bottomled #, test, noaa"
 
 void executeCustomCommands(char* commandString,char* parameterString)
 {
@@ -29,13 +41,9 @@ void executeCustomCommands(char* commandString,char* parameterString)
   }
   if (strcmp(commandString, "status") == 0)
   {
-    struct tm today;
-    if (!getLocalTime(&today))
-    {
-      console.println("Failed to obtain time");
-      return;
-    }
-    console.printf("%sNext %s tide in %.2f hours (%f feet)\n", asctime(&today), typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
+
+    printLocalTime();
+    console.printf("Next %s tide in %.2f hours (%f feet)\n", typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
     console.printf("Marker at %i\r\n", markerLocation);
   }
 
@@ -65,6 +73,10 @@ void executeCustomCommands(char* commandString,char* parameterString)
   {
     step(atoi(parameterString));
     console.printf("Moved %s - now @%i\n", parameterString, markerLocation);
+  }
+  if (strcmp(commandString, "home") == 0)
+  {
+    homeStepper();
   }
 
   if (strcmp(commandString, "noaa") == 0) {

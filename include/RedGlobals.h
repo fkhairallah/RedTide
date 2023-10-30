@@ -67,6 +67,8 @@ void mqttCallback(char *topic, byte *payload, unsigned int length);
 extern int markerLocation;
 void configureTide();
 void checkTide();
+void getTide(struct tm now);
+void homeStepper();
 void testStepper();
 void step(int n);
 void idleStepper();

@@ -5,17 +5,20 @@
 
 
 // range of dial -- keep motor operating within
-#define STEPPER_MAX_RANGE 4500L // measured
+#define STEPPER_MAX_RANGE 4250L // measured
 
 // total ide period is 12 hours and 50 minutes so half of that (high-low) is 385 minutes
 // Divide range by 385 to get the steps per minutes
-#define STEPS_PER_MINUTE 11.688
+#define STEPS_PER_MINUTE 11.0
 
 // Last time tide data was updated
-unsigned long lastTideUpdate;
-double minutesToNextTide;
-double heightOfNextTide;
-char typeOfNextTide[32];
+unsigned long lastMarkerUpdate;   // interval between marker update
+struct tm nextTideTime;         // time of next tide event
+struct tm lastTideTime;         // time of last tide event
+double tideCycleLength;         // length of this tide cycle in minutes
+double minutesToNextTide;       // minutes left in this cycle
+double heightOfNextTide;        // height above MLLW in feet
+char typeOfNextTide[32];        // H/L
 bool disableStepper = true;
 
 int markerLocation;
@@ -33,8 +36,8 @@ Stepper stepper(STEPPER_NUMBER_STEPS, COIL_A1, COIL_A2, COIL_B3, COIL_B4);
  */
 void homeStepper() {
 
-
-    console.println("Homing Stepper...");
+    if (debugMode)
+        console.print("Homing Stepper...");
     markerLocation = 0;
 
     pinMode(LIMIT_SWITCH, INPUT_PULLUP);
@@ -44,7 +47,8 @@ void homeStepper() {
     // if we're pegged -- move down then try hominh
     if (digitalRead(LIMIT_SWITCH) == 0) {
         stepper.step(-1000);
-        console.println("Limit hit--- descending a bit...");
+        if (debugMode)
+            console.print("Limit hit--- descending a bit...");
     }
 
     while(digitalRead(LIMIT_SWITCH)!= 0) {
@@ -63,8 +67,8 @@ void homeStepper() {
     idleStepper();
     disableStepper = false;
     markerLocation = STEPPER_MAX_RANGE;
-    console.println("Homing successfull!");
-
+    if (debugMode)
+        console.println("Homing successfull!");
 }
 
 
@@ -88,7 +92,8 @@ void step(int n)
     markerLocation += n;
 }
 
-
+// seems the library keeps some pins on causing current within the winding of the stepper motor
+// it causes heating. Turn all pins off to save power.
 void idleStepper() {
 
     digitalWrite(COIL_A1, 0);
@@ -100,6 +105,42 @@ void idleStepper() {
 /*
  * ********************************************************************************
 
+ initialize the tides configuration. Get current time and set the timezone.
+ This is currently hard coded and can be moved into the configuraton later
+
+ * ********************************************************************************
+*/
+
+void configureTide()
+{
+    // zero the stepper motor by returning it to the home position
+    homeStepper();
+
+    // init and get current time
+    configTime(0, 0, "pool.ntp.org");
+
+    // timezone strings here:https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+    setenv("TZ", "EST5EDT, M3 .2.0, M11 .1.0", 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
+    tzset();
+
+    // give 2s delay before updating tide to allow system to fully configure
+    lastMarkerUpdate = millis() + 2000 - TIDE_UPDATE_INTERVAL;
+
+    struct tm today;
+    if (!getLocalTime(&today))
+    {
+        console.println("configureTide() Failed to obtain time");
+        return;
+    }
+    else
+    {
+        getTide(today);
+    }
+
+}
+/*
+ * ********************************************************************************
+
  use the NOAA web service to get the tide forecast for 'NoaaStation'. This routine
  will then parse the json and determine the next tide event storing the values in
  minutesToNextTide, heightOfNextTide and typeOfNextTide (H/L)
@@ -107,28 +148,19 @@ void idleStepper() {
  * ********************************************************************************
 */
 
-void getTide()
+void getTide(struct tm now)
 {
     char url[256];
 
-    if (debugMode) console.println("Getting tide information....");
+    if (debugMode) console.println("\nGetting tide information....");
 
-    struct tm today;
-    if (!getLocalTime(&today))
-    {
-        console.println("Failed to obtain time");
-        return;
-    }
-    else
-    {
-        console.printf("Time now is %d:%d ", today.tm_hour, today.tm_min);
-    }
+
 
     // the time library has a trick to do time calculation. You can
     // modify day, month or year with simple math then call
     // mktime() which will normalize it!!!
     // PS: structures can be copied in c++ with a simple assignment
-    struct tm tomorrow = today;
+    struct tm tomorrow = now;
     tomorrow.tm_mday += 1;
     mktime(&tomorrow);
 
@@ -137,7 +169,7 @@ void getTide()
     // form the URL
     sprintf(url, "%s&station=%s&begin_date=%02d/%02d/%d&end_date=%02d/%02d/%d",
             NOAA_BASE_URL, NoaaStation,
-            today.tm_mon + 1, today.tm_mday, today.tm_year + 1900,
+            now.tm_mon + 1, now.tm_mday, now.tm_year + 1900,
             tomorrow.tm_mon + 1, tomorrow.tm_mday, tomorrow.tm_year + 1900);
 
     // console.println(url);
@@ -174,7 +206,7 @@ void getTide()
         if (json.containsKey("predictions"))
         {
             JsonArray tides = json["predictions"];
-            if (debugMode) console.printf("\r\nNOAA sent %d preditions\r\n", tides.size());
+            if (debugMode) console.printf("NOAA sent %d preditions\r\n", tides.size());
             for (int i = 0; i < tides.size(); i++)
             {
                 // get next tide time into a workable format
@@ -193,52 +225,35 @@ void getTide()
                 tideTime.tm_mday = day;
                 tideTime.tm_hour = hour;
                 tideTime.tm_min = min;
-                tideTime.tm_isdst = today.tm_isdst; // make sure DST matches
+                tideTime.tm_isdst = now.tm_isdst; // make sure DST matches
 
                 // see if this tide is in the future
                 time_t tidett = mktime(&tideTime);
-                time_t nowtt = mktime(&today);
+                time_t nowtt = mktime(&now);
 
                 if (tidett > nowtt)
                 {
                     minutesToNextTide = difftime(tidett, nowtt) / 60;
                     strcpy(typeOfNextTide, type);
                     heightOfNextTide = atof(v);
-                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%f feet)\r\n\r\n", typeOfNextTide, minutesToNextTide, heightOfNextTide);
+                    nextTideTime = tideTime;
+                    tideCycleLength = difftime(tidett, mktime(&lastTideTime) ) / 60;
+                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%f feet) cycle %.1f\r\n\r\n", typeOfNextTide, minutesToNextTide, heightOfNextTide, tideCycleLength);
                     break;
+                }
+                else 
+                {
+                    lastTideTime = tideTime;
                 }
             }
         }
     }
 }
+
 /*
  * ********************************************************************************
 
- initialize the tides configuration. Get current time and set the timezone.
- This is currently hard coded and can be moved into the configuraton later
-
- * ********************************************************************************
-*/
-
-void configureTide()
-{
-    // zero the stepper motor by returning it to the home position
-    homeStepper();
-
-    // init and get current time
-    configTime(0, 0, "pool.ntp.org");
-
-    // timezone strings here:https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-    setenv("TZ", "EST5EDT, M3 .2.0, M11 .1.0", 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
-    tzset();
-
-    // last Time tide was updated
-    lastTideUpdate = millis() + 2000 - TIDE_UPDATE_INTERVAL;
-}
-/*
- * ********************************************************************************
-
- periodically check on tides and update according to the configered interval
+ periodically check on tides and move marker to correct location
 
  * ********************************************************************************
 */
@@ -249,21 +264,43 @@ void checkTide()
     int stepsToTake; 
 
     // check on time every so often
-    if ((millis() - lastTideUpdate) > TIDE_UPDATE_INTERVAL)
+    if ((millis() - lastMarkerUpdate) > TIDE_UPDATE_INTERVAL)
     {
+        struct tm today;
+        if (!getLocalTime(&today))
+        {
+            console.println("Failed to obtain time");
+            return;
+        }
+        else
+        {
+            if (debugMode) console.print(&today, "%A, %B %d %Y %H:%M:%S, ");
+        }
 
-        getTide();
-        lastTideUpdate = millis();
+        // calculate minutes left
+        minutesToNextTide = difftime(mktime(&nextTideTime) , mktime(&today)) / 60;
 
-        if (typeOfNextTide == "L")
+        // get tide if we are past the nextTideTime
+        if (minutesToNextTide < 0)
+        {
+            getTide(today);
+            if (debugMode) console.print("Last Tide was at ");
+            if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
+            if (debugMode) console.print(" next at ");
+            if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S");
+        }
+
+        if (typeOfNextTide[0] == 'H')
             markerNewLocation =  (385 - minutesToNextTide) * STEPS_PER_MINUTE;
         else
             markerNewLocation = minutesToNextTide * STEPS_PER_MINUTE;
 
         stepsToTake = (int)markerNewLocation - markerLocation;
 
-        console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
+        if (debugMode) console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
 
         step(stepsToTake);
+
+        lastMarkerUpdate = millis();
     }
 }

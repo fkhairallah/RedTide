@@ -44,5 +44,7 @@ void loop()
 
   handleConsole(); // handle any commands from console
 
+  delay(200);
+
   
 }

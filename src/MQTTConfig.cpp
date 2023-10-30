@@ -66,12 +66,11 @@ void subscribeToTopics()
 {
   
 #ifdef DISPLAY_PRESENT
-      mqtt_client.subscribe(mqtt_requiredTemperature_topic);
+  mqtt_client.subscribe(mqtt_requiredTemperature_topic);
 #endif
-      console.printf("Sub to: %s, status=%i\n",mqtt_led_command,mqtt_client.subscribe(mqtt_led_command));
-      console.printf("Sub to: %s, status=%i\n",mqtt_led_mode,mqtt_client.subscribe(mqtt_led_mode));
-
-      console.printf("Sub to: %s, status=%i\n", mqtt_debug_set_topic, mqtt_client.subscribe(mqtt_debug_set_topic));
+  mqtt_led_command,mqtt_client.subscribe(mqtt_led_command);
+  mqtt_led_mode,mqtt_client.subscribe(mqtt_led_mode);
+  mqtt_debug_set_topic, mqtt_client.subscribe(mqtt_debug_set_topic);
 }
 
 // This routine is called when an MQTT message is received 
