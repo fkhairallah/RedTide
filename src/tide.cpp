@@ -16,6 +16,7 @@ unsigned long lastMarkerUpdate;   // interval between marker update
 struct tm nextTideTime;         // time of next tide event
 struct tm lastTideTime;         // time of last tide event
 double tideCycleLength;         // length of this tide cycle in minutes
+double stepsPerMinute;          // depending on tide cycle, number of steps per minute
 double minutesToNextTide;       // minutes left in this cycle
 double heightOfNextTide;        // height above MLLW in feet
 char typeOfNextTide[32];        // H/L
@@ -150,15 +151,16 @@ void configureTide()
 
 void getTide(struct tm now)
 {
+    // turn the time to time_t so we can do math on it
+    time_t nowtt = mktime(&now);
+
     char url[256];
 
-    if (debugMode) console.println("\nGetting tide information....");
-
-
+    if (debugMode) console.print("\nGetting tide information....");
 
     // the time library has a trick to do time calculation. You can
-    // modify day, month or year with simple math then call
-    // mktime() which will normalize it!!!
+    // modify day, month or year with simple math (+ - * /)
+    // then call mktime() which will normalize it!!!
     // PS: structures can be copied in c++ with a simple assignment
     struct tm tomorrow = now;
     tomorrow.tm_mday += 1;
@@ -206,7 +208,7 @@ void getTide(struct tm now)
         if (json.containsKey("predictions"))
         {
             JsonArray tides = json["predictions"];
-            if (debugMode) console.printf("NOAA sent %d preditions\r\n", tides.size());
+            if (debugMode) console.printf("NOAA sent %d preditions\n", tides.size());
             for (int i = 0; i < tides.size(); i++)
             {
                 // get next tide time into a workable format
@@ -214,36 +216,40 @@ void getTide(struct tm now)
                 strcpy(t, tides[i]["t"]);
                 strcpy(v, tides[i]["v"]);
                 strcpy(type, tides[i]["type"]);
-                Serial.printf("%d: %s %s %s\r\n", i, t, v, type);
+                if (debugMode) console.printf("%d: %s %s %s  ", i, t, v, type);
 
                 int year, month, day, hour, min;
                 sscanf(t, "%d-%d-%d  %d:%d", &year, &month, &day, &hour, &min);
+                if (debugMode) console.printf("parsed %i/%i/%i %i:%i\n", year, month, day, hour, min);
 
-                struct tm tideTime;
-                tideTime.tm_year = year - 1900;
-                tideTime.tm_mon = month - 1;
-                tideTime.tm_mday = day;
-                tideTime.tm_hour = hour;
-                tideTime.tm_min = min;
-                tideTime.tm_isdst = now.tm_isdst; // make sure DST matches
+                nextTideTime.tm_year = year - 1900;
+                nextTideTime.tm_mon = month - 1;
+                nextTideTime.tm_mday = day;
+                nextTideTime.tm_hour = hour;
+                nextTideTime.tm_min = min;
+                nextTideTime.tm_isdst = now.tm_isdst; // make sure DST matches
 
                 // see if this tide is in the future
-                time_t tidett = mktime(&tideTime);
-                time_t nowtt = mktime(&now);
+                time_t tidett = mktime(&nextTideTime);
 
                 if (tidett > nowtt)
                 {
                     minutesToNextTide = difftime(tidett, nowtt) / 60;
                     strcpy(typeOfNextTide, type);
                     heightOfNextTide = atof(v);
-                    nextTideTime = tideTime;
                     tideCycleLength = difftime(tidett, mktime(&lastTideTime) ) / 60;
-                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%f feet) cycle %.1f\r\n\r\n", typeOfNextTide, minutesToNextTide, heightOfNextTide, tideCycleLength);
+                    stepsPerMinute = STEPPER_MAX_RANGE / tideCycleLength;
+                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%.1f feet) spm %.1f\n", typeOfNextTide, minutesToNextTide, heightOfNextTide, stepsPerMinute);
+                    if (debugMode) console.print("Last Tide was at ");
+                    if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
+                    if (debugMode) console.print(" next at ");
+                    if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S\n");
                     break;
                 }
                 else 
                 {
-                    lastTideTime = tideTime;
+                    lastTideTime = nextTideTime;
+                    if (lastTideTime.tm_hour != nextTideTime.tm_hour) console.println("***TIME ASSIGNMENT FAILED***");
                 }
             }
         }
@@ -257,7 +263,6 @@ void getTide(struct tm now)
 
  * ********************************************************************************
 */
-
 void checkTide()
 {
     double markerNewLocation;
@@ -284,16 +289,13 @@ void checkTide()
         if (minutesToNextTide < 0)
         {
             getTide(today);
-            if (debugMode) console.print("Last Tide was at ");
-            if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
-            if (debugMode) console.print(" next at ");
-            if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S");
+
         }
 
         if (typeOfNextTide[0] == 'H')
-            markerNewLocation =  (385 - minutesToNextTide) * STEPS_PER_MINUTE;
+            markerNewLocation =  (385 - minutesToNextTide) * stepsPerMinute;
         else
-            markerNewLocation = minutesToNextTide * STEPS_PER_MINUTE;
+            markerNewLocation = minutesToNextTide * stepsPerMinute;
 
         stepsToTake = (int)markerNewLocation - markerLocation;
 

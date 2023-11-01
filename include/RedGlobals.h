@@ -20,9 +20,6 @@
 #define STEPPER_NUMBER_STEPS 2048 // 28BYJ-48 motor
 
 // in main
-extern double minutesToNextTide;
-extern double heightOfNextTide;
-extern char typeOfNextTide[];
 
 // in WIFIConfig
 extern char myHostName[];
@@ -64,6 +61,13 @@ void mqttDisconnect();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 
 // in tide.cpp
+extern double minutesToNextTide;
+extern double heightOfNextTide;
+extern char typeOfNextTide[];
+extern struct tm nextTideTime;   // time of next tide event
+extern struct tm lastTideTime;   // time of last tide event
+extern double tideCycleLength;   // length of this tide cycle in minutes
+extern double stepsPerMinute;    // depending on tide cycle, number of steps per minute
 extern int markerLocation;
 void configureTide();
 void checkTide();

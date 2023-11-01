@@ -44,7 +44,9 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
     printLocalTime();
     console.printf("Next %s tide in %.2f hours (%f feet)\n", typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
-    console.printf("Marker at %i\r\n", markerLocation);
+    console.printf("Marker at %i. cycle is %.1f, %.1f steps per minute\r\n", markerLocation, tideCycleLength, stepsPerMinute);
+    console.print(&lastTideTime, "Last tide was @%A, %B %d %Y %H:%M:%S");
+    console.println(&nextTideTime, ", next one @%A, %B %d %Y %H:%M:%S\n");
   }
 
   if (strcmp(commandString, "topled") == 0)
@@ -66,7 +68,19 @@ void executeCustomCommands(char* commandString,char* parameterString)
   {
     //testLED();
     //testStepper();
-    console.println(digitalRead(LIMIT_SWITCH));
+    //console.println(digitalRead(LIMIT_SWITCH));
+    struct tm now;
+    if (!getLocalTime(&now))
+    {
+      console.println("Failed to obtain time");
+      return;
+    }
+    else
+    {
+      if (debugMode)
+        console.print(&now, "%A, %B %d %Y %H:%M:%S, ");
+        getTide(now);
+    }
   }
 
   if (strcmp(commandString, "step") == 0)
