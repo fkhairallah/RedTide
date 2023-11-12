@@ -30,7 +30,7 @@ void configureLED()
 {
 
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
-  topShelf = new Adafruit_NeoPixel(atoi(topLED), LED_DATA_PIN_TOP, NEO_GRB + NEO_KHZ800);
+  topShelf = new Adafruit_NeoPixel(atoi(topLED), LED_DATA_PIN_TOP, NEO_GBR + NEO_KHZ800);
   topShelf->begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   topShelf->clear(); // Turn OFF all pixels ASAP
   
@@ -47,6 +47,9 @@ void testLED()
   topShelf->clear();
 
   console.println("255,0,0");
+  stripFill(topShelf->gamma32(topShelf->Color(255,0,0)));
+  topShelf->show();
+  delay(1000);
 
   for (int i = 0; i < topShelf->numPixels(); i++)
   {

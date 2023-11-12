@@ -66,21 +66,21 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
   if (strcmp(commandString, "test") == 0)
   {
-    //testLED();
+    testLED();
     //testStepper();
     //console.println(digitalRead(LIMIT_SWITCH));
-    struct tm now;
-    if (!getLocalTime(&now))
-    {
-      console.println("Failed to obtain time");
-      return;
-    }
-    else
-    {
-      if (debugMode)
-        console.print(&now, "%A, %B %d %Y %H:%M:%S, ");
-        getTide(now);
-    }
+    // struct tm now;
+    // if (!getLocalTime(&now))
+    // {
+    //   console.println("Failed to obtain time");
+    //   return;
+    // }
+    // else
+    // {
+    //   if (debugMode)
+    //     console.print(&now, "%A, %B %d %Y %H:%M:%S, ");
+    //     getTide(now);
+    // }
   }
 
   if (strcmp(commandString, "step") == 0)
