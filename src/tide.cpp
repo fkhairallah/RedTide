@@ -2,11 +2,10 @@
 #include <time.h>
 #include <HTTPClient.h>
 #include <Stepper.h>
-#include <Adafruit_NeoPixel.h>
 
 // LED indicator
-#define TIDE_INDICATOR_PIXEL_COUNT 3
-Adafruit_NeoPixel tideIndicator = Adafruit_NeoPixel(TIDE_INDICATOR_PIXEL_COUNT, LED_DATA_PIN_TIDE, NEO_GRB + NEO_KHZ800);
+// #define TIDE_INDICATOR_PIXEL_COUNT 3
+// Adafruit_NeoPixel tideIndicator = Adafruit_NeoPixel(TIDE_INDICATOR_PIXEL_COUNT, LED_DATA_PIN_TIDE, NEO_GRB + NEO_KHZ800);
 uint32_t risingTideColor;
 uint32_t fallingTideColor;
 
@@ -118,19 +117,19 @@ void idleStepper() {
 void configureTide()
 {
     // Initialize the tide indicator and turn it off
-    tideIndicator.begin();
-    tideIndicator.clear();
+    // tideIndicator.begin();
+    // tideIndicator.clear();
 
-    risingTideColor = tideIndicator.Color(0,255,0);
-    fallingTideColor = tideIndicator.Color(255,0,0);
+    // risingTideColor = tideIndicator.Color(0,255,0);
+    // fallingTideColor = tideIndicator.Color(255,0,0);
 
-    tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, tideIndicator.Color(255, 255, 255));
-    tideIndicator.show();
+    // tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, tideIndicator.Color(255, 255, 255));
+    // tideIndicator.show();
 
     // zero the stepper motor by returning it to the home position
     homeStepper();
 
-    tideIndicator.clear();
+    // tideIndicator.clear();
 
     // init and get current time
     configTime(0, 0, "pool.ntp.org");
@@ -317,12 +316,12 @@ void checkTide()
             if (typeOfNextTide[0] == 'H')
             {
                 markerNewLocation = (tideCycleLength - minutesToNextTide) * stepsPerMinute;
-                tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, risingTideColor);
+                //tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, risingTideColor);
             }
             else
             {
                 markerNewLocation = minutesToNextTide * stepsPerMinute;
-                tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, fallingTideColor);
+                //tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, fallingTideColor);
             }
             stepsToTake = (int)markerNewLocation - markerLocation;
 
@@ -331,7 +330,7 @@ void checkTide()
 
             // move marker & show H/L indicator
             step(stepsToTake);
-            tideIndicator.show();
+            //tideIndicator.show();
 
             // update timer
             lastMarkerUpdate = millis();
