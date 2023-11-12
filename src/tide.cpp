@@ -21,6 +21,7 @@ double minutesToNextTide;       // minutes left in this cycle
 double heightOfNextTide;        // height above MLLW in feet
 char typeOfNextTide[32];        // H/L
 bool disableStepper = true;
+bool invalidTide = true;        // start we no tide information
 
 int markerLocation;
 
@@ -244,6 +245,7 @@ void getTide(struct tm now)
                     if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
                     if (debugMode) console.print(" next at ");
                     if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S\n");
+                    invalidTide = false;
                     break;
                 }
                 else 
@@ -280,29 +282,37 @@ void checkTide()
         else
         {
             if (debugMode) console.print(&today, "%A, %B %d %Y %H:%M:%S, ");
+
+            // make sure we have valid tide info
+            if (invalidTide)
+            {
+                getTide(today); // try to get new tide
+                return;
+            }
+
+            // calculate minutes left until tide change
+            minutesToNextTide = difftime(mktime(&nextTideTime), mktime(&today)) / 60;
+
+            // get new tide if we are past the nextTideTime
+            if (minutesToNextTide < 0)
+            {
+                getTide(today);
+            }
+
+            if (typeOfNextTide[0] == 'H')
+                markerNewLocation = (tideCycleLength - minutesToNextTide) * stepsPerMinute;
+            else
+                markerNewLocation = minutesToNextTide * stepsPerMinute;
+
+            stepsToTake = (int)markerNewLocation - markerLocation;
+
+            if (debugMode)
+                console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
+
+            step(stepsToTake);
+
+            lastMarkerUpdate = millis();
         }
 
-        // calculate minutes left
-        minutesToNextTide = difftime(mktime(&nextTideTime) , mktime(&today)) / 60;
-
-        // get tide if we are past the nextTideTime
-        if (minutesToNextTide < 0)
-        {
-            getTide(today);
-
-        }
-
-        if (typeOfNextTide[0] == 'H')
-            markerNewLocation =  (385 - minutesToNextTide) * stepsPerMinute;
-        else
-            markerNewLocation = minutesToNextTide * stepsPerMinute;
-
-        stepsToTake = (int)markerNewLocation - markerLocation;
-
-        if (debugMode) console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
-
-        step(stepsToTake);
-
-        lastMarkerUpdate = millis();
     }
 }
