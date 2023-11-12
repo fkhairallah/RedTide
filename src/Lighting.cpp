@@ -30,11 +30,11 @@ void configureLED()
 {
 
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
-  FastLED.addLeds<WS2811,LED_DATA_PIN_TOP, GRB>(leds, atoi(topLED));
+  FastLED.addLeds<WS2811,LED_DATA_PIN_TOP, BRG>(leds, atoi(topLED));
   //topShelf = new Adafruit_NeoPixel(atoi(topLED), LED_DATA_PIN_TOP, NEO_GBR + NEO_KHZ800);
   //topShelf->begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   //topShelf->clear(); // Turn OFF all pixels ASAP
-  leds[0] = CRGB::Black;
+  FastLED.clear();
   FastLED.show();
   
   ledStripON = false;
@@ -57,9 +57,25 @@ void testLED()
   console.println("Blue");
   FastLED.showColor(CRGB::Blue);
   delay(1000);
-  console.println("Grey");
-  FastLED.showColor(CRGB::Grey);
+  console.println("White");
+  FastLED.showColor(CRGB::AntiqueWhite);
+  delay(5000);
+  for (int i=0;i<5;i++) {
+    FastLED.setTemperature(Candle);
+  FastLED.showColor(CRGB::White);
   delay(1000);
+
+FastLED.setTemperature(Tungsten100W);
+  FastLED.showColor(CRGB::White);
+  delay(1000);
+FastLED.setTemperature(Tungsten40W);
+  FastLED.showColor(CRGB::White);
+  delay(1000);
+
+  }
+  
+
+  
 
   // topShelf->clear();
 
@@ -141,6 +157,9 @@ void executeLED()
     case 1:                                    // 100W tungsten -- Pam's favorite
       //stripFill(topShelf->Color(0, 150, 255)); // bGR
       // strip.show();
+        FastLED.setTemperature(Candle);
+
+      FastLED.showColor(CRGB::White);
       console.println("ON");
       break;
     case 2: // dimmed 50W tungsten
@@ -173,6 +192,8 @@ void executeLED()
     //stripFill(topShelf->gamma32(topShelf->Color(0, 0, 0)));
     // strip.clear();
     //topShelf->show();
+    FastLED.clear();
+    FastLED.show();
     console.println("OFF");
   }
 
