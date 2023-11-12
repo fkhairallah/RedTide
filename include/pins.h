@@ -8,11 +8,12 @@
 
 // hardware pin definitions
 #define pgm_pin 0
-#define blueLED 2      // blue LED light (D1 Mini D4)
-#define LED_DATA_PIN_TOP 23 // LED data pin (ESP32 DevKit-V4)
-#define LED_DATA_PIN_BOTTOM 22     // LED data pin (ESP32 DevKit-V4)
-#define NUM_LEDS_TOP 64           // Max # of LEDS
-#define NUM_LEDS_BOTTOM 64           // Max # of LEDS
+//#define blueLED 2      // blue LED light (D1 Mini D4)
+#define LED_DATA_PIN_TOP 23     // LED data pin (ESP32 DevKit-V4)
+#define LED_DATA_PIN_BOTTOM 22  // LED data pin (ESP32 DevKit-V4)
+#define LED_DATA_PIN_TIDE 25    // drive tide H/L indicator
+#define NUM_LEDS_TOP 64         // Max # of LEDS
+#define NUM_LEDS_BOTTOM 64      // Max # of LEDS
 
 #define COIL_A1 13
 #define COIL_A2 14
