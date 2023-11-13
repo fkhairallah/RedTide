@@ -29,36 +29,15 @@ void configureLED()
 // show a green pattern on the LED strip
 void testLED()
 {
-  ledMode = 5;
-  executeLED();
+  setLEDMode(5);
   delay(5000);
   ledMode = 1;
 
-  // // leds[0] = CRGB::Red; FastLED.show(); delay(1000);
-  // console.println("Red");
-  // FastLED.showColor(CRGB::Red);
-  // delay(1000);
-  // console.println("Green");
-  // FastLED.showColor(CRGB::Green);
-  // delay(1000);
-  // console.println("Blue");
-  // FastLED.showColor(CRGB::Blue);
-  // delay(1000);
-  // console.println("White");
-  // FastLED.showColor(CRGB::AntiqueWhite);
-  // delay(5000);
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i <= 5; i++)
   {
-    FastLED.setTemperature(Candle);
-    FastLED.showColor(CRGB::White);
-    delay(1000);
+    setLEDMode(i);
+    FastLED.delay(1000);
 
-    FastLED.setTemperature(Tungsten100W);
-    FastLED.showColor(CRGB::White);
-    delay(1000);
-    FastLED.setTemperature(Tungsten40W);
-    FastLED.showColor(CRGB::White);
-    delay(1000);
   }
 
 }
@@ -131,7 +110,7 @@ void executeLED()
   }
   else
   {
-    fadeToBlackBy(leds, atoi(topLED), 20);
+    FastLED.clear();
     FastLED.show();
     console.println("OFF");
   }
@@ -171,7 +150,8 @@ void colorWipe(uint32_t color, int wait)
 // fill the strip with a sequence of RGB color
 void fillRainbow()
 {
-  fill_rainbow(leds, atoi(topLED), 0, 5);
+  fill_rainbow(leds, atoi(topLED), 100);
+  FastLED.show();
 }
 
 // fills top shelf with a sequence of color stored in list[]
