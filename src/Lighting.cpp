@@ -19,7 +19,7 @@ void configureLED()
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
   FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(leds[0], atoi(topLED));
   FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(leds[1], atoi(bottomLED));
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, BRG>(leds[2], NUM_LEDS_TIDE);
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, GRB>(leds[2], NUM_LEDS_TIDE);
 
   FastLED.clear();
   FastLED.show();
@@ -194,7 +194,7 @@ void setTideMarker(char t)
   }
   else
   {
-    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkRed);
+    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkBlue);
   }
   FastLED.show();
 }
