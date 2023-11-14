@@ -19,7 +19,7 @@ void configureLED()
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
   FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(leds[0], atoi(topLED));
   FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(leds[1], atoi(bottomLED));
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, BRG>(leds[2], TIDE_INDICATOR_PIXEL_COUNT);
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, BRG>(leds[2], NUM_LEDS_TIDE);
 
   FastLED.clear();
   FastLED.show();
@@ -40,9 +40,7 @@ void testLED()
   {
     setLEDMode(i);
     FastLED.delay(1000);
-
   }
-
 }
 
 /*
@@ -83,19 +81,19 @@ void executeLED()
   {
     switch (ledMode)
     {
-    case 1: // 100W tungsten -- Pam's favorite
-      FastLED.setTemperature(Candle);
-      FastLED.showColor(CRGB::White);
-      console.println("ON");
-      break;
     case 2: // dimmed 50W tungsten
       FastLED.setTemperature(Candle);
-      FastLED.showColor(CRGB::Grey);
-      console.println("DIMMED");
+      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB::Grey);
+      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB::Grey);
+      if (debugMode)
+        console.println("DIMMED");
       break;
     case 3: // navy blue
-      FastLED.showColor(CRGB(0,128,128));
-      console.println("3 - dimmmmmm");
+      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB(0, 128, 128));
+      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB(0, 128, 128));
+
+      if (debugMode)
+        console.println("3 - dimmmmmm");
       break;
     case 4: // Xmas
       // fillList(rgbList, 2);
@@ -106,9 +104,13 @@ void executeLED()
       // strip.show();
       console.println("RAINBOW");
       break;
+    case 1:  // 100W tungsten -- Pam's favorite
     default: // full white
-      FastLED.showColor(CRGB::White);
-      console.println("Default");
+      FastLED.setTemperature(Candle);
+      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB::White);
+      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB::White);
+      if (debugMode)
+        console.println("ON");
     }
   }
   else
@@ -175,19 +177,24 @@ void fillList(uint32_t list[], int count)
 
 /**
  * @brief sets the tide marker LEDS according to what the next tide is
- * 
- * 
+ *
+ * Rising/flowing tide is red
+ *
+ * Falling/ebbing tide is green
+ *
+ *
  */
 
-void setTideMarker(char t) {
+void setTideMarker(char t)
+{
 
-  if (t == 'H') 
+  if (t == 'H')
   {
-    leds[2][0] = CRGB::Green;
+    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkGreen);
   }
   else
   {
-    leds[2][0] = CRGB::Red;
+    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkRed);
   }
   FastLED.show();
 }

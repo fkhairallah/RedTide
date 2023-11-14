@@ -7,18 +7,21 @@
 #include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 #include <PubSubClient.h>
 
+#define VERSION "V2.1" // N.B: document changes in README.md
+
 // include Pins
 #ifndef _PINS_H
 #include <pins.h>
 #endif
 
-#define VERSION "V2.0"           // N.B: document changes in README.md
 #define MQTT_TOPIC_PREFIX "tide" // prefix for all MQTT topics
+
+// tide data
 #define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
 #define NOAA_DEFAULT_STATION "8722718"
 #define TIDE_UPDATE_INTERVAL 500000L
 #define STEPPER_NUMBER_STEPS 2048 // 28BYJ-48 motor
-#define TIDE_INDICATOR_PIXEL_COUNT 1    // number of pixels in tides H/L indicator
+
 // in main
 
 // in WIFIConfig
