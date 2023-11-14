@@ -10,14 +10,17 @@
 
 bool ledStripON; // Led is on or off
 int ledMode;     // mode of display 1 - 2700K, 2 - rainbow,
-CRGB leds[30];
+CRGB leds[3][30];
 long lastLEDUpdate; // hold last time update was sent to LED
 
 void configureLED()
 {
 
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(leds, atoi(topLED));
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(leds[0], atoi(topLED));
+  FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(leds[1], atoi(bottomLED));
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, BRG>(leds[2], TIDE_INDICATOR_PIXEL_COUNT);
+
   FastLED.clear();
   FastLED.show();
 
@@ -150,7 +153,7 @@ void colorWipe(uint32_t color, int wait)
 // fill the strip with a sequence of RGB color
 void fillRainbow()
 {
-  fill_rainbow(leds, atoi(topLED), 100);
+  fill_rainbow(leds[0], atoi(topLED), 100);
   FastLED.show();
 }
 
@@ -168,4 +171,23 @@ void fillList(uint32_t list[], int count)
   //   topShelf->show(); //  Update strip to match
   //   delay(50);
   // }
+}
+
+/**
+ * @brief sets the tide marker LEDS according to what the next tide is
+ * 
+ * 
+ */
+
+void setTideMarker(char t) {
+
+  if (t == 'H') 
+  {
+    leds[2][0] = CRGB::Green;
+  }
+  else
+  {
+    leds[2][0] = CRGB::Red;
+  }
+  FastLED.show();
 }

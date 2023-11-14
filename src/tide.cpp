@@ -3,11 +3,6 @@
 #include <HTTPClient.h>
 #include <Stepper.h>
 
-// LED indicator
-// #define TIDE_INDICATOR_PIXEL_COUNT 3
-// Adafruit_NeoPixel tideIndicator = Adafruit_NeoPixel(TIDE_INDICATOR_PIXEL_COUNT, LED_DATA_PIN_TIDE, NEO_GRB + NEO_KHZ800);
-uint32_t risingTideColor;
-uint32_t fallingTideColor;
 
 // range of dial -- keep motor operating within
 #define STEPPER_MAX_RANGE 4250L // measured
@@ -316,13 +311,12 @@ void checkTide()
             if (typeOfNextTide[0] == 'H')
             {
                 markerNewLocation = (tideCycleLength - minutesToNextTide) * stepsPerMinute;
-                //tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, risingTideColor);
             }
             else
             {
                 markerNewLocation = minutesToNextTide * stepsPerMinute;
-                //tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, fallingTideColor);
             }
+            setTideMarker(typeOfNextTide[0]);
             stepsToTake = (int)markerNewLocation - markerLocation;
 
             if (debugMode)

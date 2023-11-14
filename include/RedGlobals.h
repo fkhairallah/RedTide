@@ -18,7 +18,7 @@
 #define NOAA_DEFAULT_STATION "8722718"
 #define TIDE_UPDATE_INTERVAL 500000L
 #define STEPPER_NUMBER_STEPS 2048 // 28BYJ-48 motor
-
+#define TIDE_INDICATOR_PIXEL_COUNT 1    // number of pixels in tides H/L indicator
 // in main
 
 // in WIFIConfig
@@ -47,9 +47,10 @@ void executeLED();
 void stripFill(uint32_t color);
 void fillList(uint32_t list[], int count);
 void fillRainbow();
+void setTideMarker(char t);
 
-// in console.ino
-extern dConsole console;
+    // in console.ino
+    extern dConsole console;
 void setupConsole();
 void handleConsole();
 
