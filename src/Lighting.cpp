@@ -105,18 +105,17 @@ void executeLED()
     {
     case 2: // dimmed 50W tungsten
       FastLED.setTemperature(Candle);
-      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB::Grey);
-      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB::Grey);
-      if (debugMode)
-        console.println("DIMMED");
+      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Grey);
+      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Grey);
+      if (debugMode) console.println("DIMMED");
       break;
-    case 3: // navy blue
-      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB(0, 128, 128));
-      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB(0, 128, 128));
 
-      if (debugMode)
-        console.println("3 - dimmmmmm");
+    case 3: // navy blue
+      fill_solid(leds[0], NUM_LEDS_TOP, CRGB(0, 128, 128));
+      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB(0, 128, 128));
+      if (debugMode) console.println("3 - dimmmmmm");
       break;
+
     case 4: // Xmas
       // fillList(rgbList, 2);
       console.println("XMAS");
@@ -129,20 +128,19 @@ void executeLED()
     case 1:  // 100W tungsten -- Pam's favorite
     default: // full white
       FastLED.setTemperature(Candle);
-      fill_solid(leds[0], NUM_LEDS_TIDE, CRGB::White);
-      fill_solid(leds[1], NUM_LEDS_TIDE, CRGB::White);
-      if (debugMode)
-        console.println("ON");
+      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::White);
+      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::White);
+      if (debugMode) console.println("ON");
     }
   }
   else
   {
     FastLED.clear();
-    FastLED.show();
     console.println("OFF");
   }
 
-  console.println("LEDs updated");
+  FastLED.show();
+  if (debugMode) console.println("LEDs updated");
 }
 
 
