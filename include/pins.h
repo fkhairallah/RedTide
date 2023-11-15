@@ -7,15 +7,14 @@
 #define _PINS_H
 
 // hardware pin definitions
-#define pgm_pin 0
-//#define blueLED 2      // blue LED light (D1 Mini D4)
+#define pgm_pin 0               // PGM on reset pin - can be used for control 
 #define LED_DATA_PIN_TOP 23     // LED data pin (ESP32 DevKit-V4)
 #define LED_DATA_PIN_BOTTOM 22  // LED data pin (ESP32 DevKit-V4)
 #define LED_DATA_PIN_TIDE 21    // drive tide H/L indicator
-#define MAX_LEDS 32             // Make sure this is larger than any of the NUM LEDS
-#define NUM_LEDS_TOP 20         // TOP Max # of LEDS
-#define NUM_LEDS_BOTTOM 20      // Max # of LEDS
-#define NUM_LEDS_TIDE 3 // number of pixels in tides H/L indicator
+#define MAX_LEDS 64             // Make sure this is larger than any of the NUM LEDS
+#define NUM_LEDS_TOP 20         // default # of LEDS (x3 since they are 12V)
+#define NUM_LEDS_BOTTOM 20      // default  # of LEDS (x3 since they are 12V)
+#define NUM_LEDS_TIDE 3         // number of pixels in tides H/L indicator
 
 #define COIL_A1 13
 #define COIL_A2 14
