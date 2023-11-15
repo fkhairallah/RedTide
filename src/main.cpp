@@ -10,12 +10,8 @@ void setup()
   configureLED();
   setTideMarker('?');
 
-  // configure wifi
-  configureWIFI();
-
   
   configureWIFI(); // configure wifi
-
   configureMQTT();
 
   configureTide();

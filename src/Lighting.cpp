@@ -17,6 +17,14 @@ int ledMode;     // mode of display 1 - 2700K, 2 - rainbow,
 CRGB leds[3][MAX_LEDS];
 long lastLEDUpdate; // hold last time update was sent to LED
 
+/**
+ * @brief ocnfigure all 3 led strips using FastLED library
+ * 
+ * turn off all LEDS and then set the mode to normal
+ * 
+ */
+
+
 void configureLED()
 {
 
@@ -30,10 +38,12 @@ void configureLED()
 
   ledStripON = false;
   ledMode = 1;
-  executeLED();
 }
 
-// show a green pattern on the LED strip
+/**
+ * @brief called from console: used to test various aspects of the LED
+ * 
+ */
 void testLED()
 {
 
@@ -52,10 +62,16 @@ void testLED()
 /*
  * ********************************************************************************
 
-   Service an LED command.
+   LED Commands
 
  * ********************************************************************************
 */
+
+/**
+ * @brief called in response to MQTT command: turns LEDS on/off
+ * 
+ * @param mode 
+ */
 
 void setLEDPower(char *mode)
 {
