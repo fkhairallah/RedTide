@@ -173,12 +173,12 @@ void setTideMarker(char t)
   if (t == 'H')
   {
     fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkTurquoise);
-    leds[2][0] = CRGB::Grey;
+    leds[2][0] = CRGB::DarkGrey;
   }
   else if (t == 'L')
   {
-    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkOrange);
-    leds[2][2] = CRGB::Grey;
+    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkRed);
+    leds[2][2] = CRGB::DarkGrey;
   }
   else
   {
