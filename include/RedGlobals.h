@@ -34,6 +34,8 @@ extern char mqttPwd[];
 extern char topLED[]; // nunber of leds in the top string
 extern char bottomLED[]; // nunber of leds in the bottom string
 extern char NoaaStation[];
+extern bool otaInProgress;  // stop doing stuff if we are uploading software
+
 void configureWIFI();
 void checkConnection ();
 void readConfigFromDisk();

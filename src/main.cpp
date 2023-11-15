@@ -6,12 +6,8 @@ void setup()
   // setup Console
   setupConsole();
 
-  // configure wifi
-  configureWIFI();
+  configureWIFI(); // configure wifi
 
-  delay(2000);
-
-  
   configureMQTT();
 
   configureTide();
@@ -33,18 +29,16 @@ void loop()
   // This should be the first line in loop();
   checkConnection(); // check WIFI connection & Handle OTA
 
+  if (!otaInProgress)
+  {
 #ifdef TEMP_SENSOR_PRESENT
-  // service temperature and other sensors
-  serviceSensors();
+    // service temperature and other sensors
+    serviceSensors();
 #endif
-
-  checkMQTTConnection(); // check MQTT
-
-  checkTide();           // check tide
+    checkMQTTConnection(); // check MQTT
+    checkTide();           // check tide
+    delay(100);
+  }
 
   handleConsole(); // handle any commands from console
-
-  delay(200);
-
-  
 }
