@@ -66,13 +66,8 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
   if (strcmp(commandString, "test") == 0)
   {
-    //testLED();
-    for(int i=0;i<10;i++) {
-      setTideMarker('H');
-      delay(1000);
-      setTideMarker('L');
-      delay(1000);
-    }
+    testLED();
+    
     //testStepper();
     //console.println(digitalRead(LIMIT_SWITCH));
     // struct tm now;

@@ -6,13 +6,20 @@ void setup()
   // setup Console
   setupConsole();
 
+  // configure all LED lines
+  configureLED();
+  setTideMarker('?');
+
+  // configure wifi
+  configureWIFI();
+
+  
   configureWIFI(); // configure wifi
 
   configureMQTT();
 
   configureTide();
 
-  configureLED();
 
 #ifdef TEMP_SENSOR_PRESENT
   // configure thermostat sensor

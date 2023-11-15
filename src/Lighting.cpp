@@ -1,6 +1,10 @@
-/*
+/***
  * ********************************************************************************
-
+ * 
+ * Implements all lighting functions using FastLED library
+ * 
+ * 
+ * 
  * ********************************************************************************
 */
 #include <FastLED.h>
@@ -10,7 +14,7 @@
 
 bool ledStripON; // Led is on or off
 int ledMode;     // mode of display 1 - 2700K, 2 - rainbow,
-CRGB leds[3][30];
+CRGB leds[3][MAX_LEDS];
 long lastLEDUpdate; // hold last time update was sent to LED
 
 void configureLED()
@@ -32,14 +36,16 @@ void configureLED()
 // show a green pattern on the LED strip
 void testLED()
 {
-  setLEDMode(5);
-  delay(5000);
-  ledMode = 1;
 
-  for (int i = 0; i <= 5; i++)
+  
+  //setLEDMode(5);
+  //delay(5000);
+  //ledMode = 1
+  for (int i = 0; i < NUM_LEDS_TOP; i++)
   {
-    setLEDMode(i);
-    FastLED.delay(1000);
+    leds[0][i] = CRGB::White;
+    FastLED.show();
+    delay(1000);
   }
 }
 
@@ -123,34 +129,7 @@ void executeLED()
   console.println("LEDs updated");
 }
 
-// fill entire strip with a single color
-void stripFill(uint32_t color)
-{
 
-  // for (int i = 0; i < topShelf->numPixels(); i++)
-  // {
-  //   topShelf->setPixelColor(i, color);
-  //   topShelf->show();
-  //   //console.printf("LED %d set to %d\r\n", i, color);
-  //   delay(50);
-  // }
-}
-
-// Fill strip pixels one after another with a color. Strip is NOT cleared
-// first; anything there will be covered pixel by pixel. Pass in color
-// (as a single 'packed' 32-bit value, which you can get by calling
-// strip.Color(red, green, blue) as shown in the loop() function above),
-// and a delay time (in milliseconds) between pixels.
-void colorWipe(uint32_t color, int wait)
-{
-
-  // for (int i = 0; i < topShelf->numPixels(); i++)
-  // {                                    // For each pixel in strip...
-  //   topShelf->setPixelColor(i, color); //  Set pixel's color (in RAM)
-  //   delay(wait);                       //  Pause for a moment
-  //   topShelf->show();                  //  Update strip to match
-  // }
-}
 
 // fill the strip with a sequence of RGB color
 void fillRainbow()
@@ -159,28 +138,15 @@ void fillRainbow()
   FastLED.show();
 }
 
-// fills top shelf with a sequence of color stored in list[]
-void fillList(uint32_t list[], int count)
-{
-  // topShelf->clear();
-
-  // int listCount = 0;
-  // for (int i = 0; i < topShelf->numPixels(); i++)
-  // { // For each pixel in strip...
-  //   topShelf->setPixelColor(i, list[listCount++]);
-  //   if (listCount >= count)
-  //     listCount = 0;
-  //   topShelf->show(); //  Update strip to match
-  //   delay(50);
-  // }
-}
 
 /**
  * @brief sets the tide marker LEDS according to what the next tide is
  *
  * Rising/flowing tide is red
  *
- * Falling/ebbing tide is green
+ * Falling/ebbing tide is blue
+ *
+ * White for everything else (e.g. error., ...)
  *
  *
  */
@@ -193,10 +159,14 @@ void setTideMarker(char t)
     fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkTurquoise);
     leds[2][2] = CRGB::Grey;
   }
-  else
+  else if (t == 'L')
   {
     fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkOrange);
     leds[2][0] = CRGB::Grey;
+  }
+  else
+  {
+    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::White);
   }
   FastLED.show();
 }
