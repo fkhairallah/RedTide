@@ -170,7 +170,7 @@ void handleConsole()
       ESP.restart();
       delay(5000);
     }
-    if (strcmp(console.commandString, "quit") == 0)
+    if ((strcmp(console.commandString, "exit") == 0) || (strcmp(console.commandString, "quit") == 0))
     {
       console.print("quiting...");
       console.closeTelnetConnection();

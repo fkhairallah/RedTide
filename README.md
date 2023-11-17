@@ -9,7 +9,7 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
 
 # Version History
 
-## Version 2.1.0
+## Version 2.1
   RC2 -- Many changes:
     - Moved to FastLED library
     - Implemented Stepper Motor to show tide level
@@ -17,7 +17,7 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
     - WS8211 string are now driven via 74HC245
     - Support for upper and lower shelf lights
 
-## Version 2.0.0
+## Version 2.0
   First iteration of the ESP32
   
 ## Version 1.0-1.2
