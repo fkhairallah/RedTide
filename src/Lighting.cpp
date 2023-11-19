@@ -13,7 +13,7 @@
 #define LED_UPDATE_INTERVAL 30000 // LED update interval
 
 bool ledStripON; // Led is on or off
-int ledMode = 1;     // mode of display 1 - 2700K, 2 - rainbow,
+int ledMode = -1;     // mode of display 1 - 2700K, 2 - rainbow,
 CRGB leds[3][MAX_LEDS];
 long lastLEDUpdate; // hold last time update was sent to LED
 
@@ -23,7 +23,6 @@ long lastLEDUpdate; // hold last time update was sent to LED
  * turn off all LEDS and then set the mode to normal
  * 
  */
-
 
 void configureLED()
 {
@@ -37,7 +36,9 @@ void configureLED()
   FastLED.show();
 
   ledStripON = false;
-  if (prefs.isKey("ledMode")) ledMode = prefs.getInt("ledMode");
+
+  ledMode = prefs.getInt("ledMode");
+  
 }
 
 /***
@@ -61,17 +62,13 @@ void handleLights() {
  */
 void testLED()
 {
-
-  
-  //setLEDMode(5);
-  //delay(5000);
-  //ledMode = 1
-  for (int i = 0; i < NUM_LEDS_TOP; i++)
-  {
-    leds[0][i] = CRGB::White;
-    FastLED.show();
-    delay(1000);
-  }
+  console.printf("ledMode = %i [%i]\r\n", ledMode, prefs.getInt("ledMode"));
+  // for (int i = 0; i < NUM_LEDS_TOP; i++)
+  // {
+  //   leds[0][i] = CRGB::White;
+  //   FastLED.show();
+  //   delay(1000);
+  // }
 }
 
 /*
@@ -119,35 +116,37 @@ void executeLED()
   {
     switch (ledMode)
     {
-    case 2: // dimmed 50W tungsten
+    case 2: // dimmed 
       FastLED.setTemperature(Candle);
       fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Grey);
       fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Grey);
       if (debugMode) console.println("DIMMED");
       break;
 
-    case 3: // navy blue
+    case 3: // very dimm
+      FastLED.setTemperature(Candle);
       fill_solid(leds[0], NUM_LEDS_TOP, CRGB(64,64,64));
       fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB(64,64,64));
       if (debugMode) console.println("3 - dimmmmmm");
       break;
 
     case 4: // Navy 
+      FastLED.setTemperature(Tungsten100W);  
       fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Navy);
       fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Navy);
-      console.println("Navy");
+      if (debugMode) console.println("Navy");
       break;
     case 5: // Rainbow
+      FastLED.setTemperature(Tungsten100W);
       fillRainbow();
-      // strip.show();
-      console.println("RAINBOW");
+      if (debugMode) console.println("RAINBOW");
       break;
     case 1:  // 100W tungsten -- Pam's favorite
     default: // full white
-      FastLED.setTemperature(Candle);
+      FastLED.setTemperature(Tungsten100W);
       fill_solid(leds[0], NUM_LEDS_TOP, CRGB::White);
       fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::White);
-      if (debugMode) console.println("ON");
+      if (debugMode) console.println("WHITE");
     }
   }
   else

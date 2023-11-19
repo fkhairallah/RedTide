@@ -6,7 +6,7 @@
 
 bool otaInProgress; // flags if OTA is in progress
 int secondsWithoutWIFI = 0; // counter the seconds without wifi
-Preferences prefs;    // preferences library
+
 
 // configuration parameters
 // Hostname, AP name & MQTT clientID
@@ -53,10 +53,7 @@ void configureWIFI()
     // clean FS, for testing
     // SPIFFS.format();
 
-    // initialize preferences library
-    prefs.begin(myHostName, false); // false:: read/write mode
-    //prefs.clear();    // clear all parameters
-
+    
     // read configuration from FS json
     //readConfigFromDisk();
     //savePreferences();

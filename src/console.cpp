@@ -144,6 +144,7 @@ void handleConsole()
       debugMode = !debugMode;
       console.print("Debug mode is now ");
       console.println(debugMode);
+      prefs.putBool("debugMode", debugMode);
     }
     if (strcmp(console.commandString, "location") == 0)
     {

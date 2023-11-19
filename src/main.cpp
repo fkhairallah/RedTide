@@ -1,8 +1,14 @@
 #include <RedGlobals.h>
+Preferences prefs; // preferences library
 
 void setup()
 {
-  debugMode = true;
+
+  // initialize preferences library
+  prefs.begin(myHostName, false); // false:: read/write mode
+  debugMode = prefs.getBool("debugMode");
+  // prefs.clear();    // clear all parameters
+
   // setup Console
   setupConsole();
 
