@@ -111,16 +111,6 @@ void idleStepper() {
 
 void configureTide()
 {
-    // Initialize the tide indicator and turn it off
-    // tideIndicator.begin();
-    // tideIndicator.clear();
-
-    // risingTideColor = tideIndicator.Color(0,255,0);
-    // fallingTideColor = tideIndicator.Color(255,0,0);
-
-    // tideIndicator.setPixelColor(TIDE_INDICATOR_PIXEL_COUNT, tideIndicator.Color(255, 255, 255));
-    // tideIndicator.show();
-
     // zero the stepper motor by returning it to the home position
     homeStepper();
 
@@ -146,8 +136,8 @@ void configureTide()
     {
         getTide(today);
     }
-
 }
+
 /*
  * ********************************************************************************
 

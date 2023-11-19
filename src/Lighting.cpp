@@ -40,6 +40,21 @@ void configureLED()
   ledMode = 1;
 }
 
+/***
+ * 
+ * This is called from loo() repeatadly. It refreshes the lights
+ * 
+ * This is dones to deals with lights changing randomly after about 30 minutes
+ * 
+*/
+void handleLights() {
+
+  EVERY_N_MINUTES(5) {
+    executeLED();
+  }
+
+}
+
 /**
  * @brief called from console: used to test various aspects of the LED
  * 
@@ -135,8 +150,9 @@ void executeLED()
   }
   else
   {
-    FastLED.clear();
-    console.println("OFF");
+    fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Black);
+    fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Black);
+    if (debugMode) console.println("OFF");
   }
 
   FastLED.show();

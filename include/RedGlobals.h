@@ -53,6 +53,7 @@ void stripFill(uint32_t color);
 void fillList(uint32_t list[], int count);
 void fillRainbow();
 void setTideMarker(char t);
+void handleLights();
 
     // in console.ino
     extern dConsole console;

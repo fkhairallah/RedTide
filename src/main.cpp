@@ -10,12 +10,10 @@ void setup()
   configureLED();
   setTideMarker('?');
 
-  
   configureWIFI(); // configure wifi
   configureMQTT();
 
   configureTide();
-
 
 #ifdef TEMP_SENSOR_PRESENT
   // configure thermostat sensor
@@ -31,7 +29,9 @@ void loop()
 {
   // This should be the first line in loop();
   checkConnection(); // check WIFI connection & Handle OTA
+  handleConsole();   // handle any commands from console
 
+  // Work to be done, but only if we aren't updating the software
   if (!otaInProgress)
   {
 #ifdef TEMP_SENSOR_PRESENT
@@ -40,8 +40,7 @@ void loop()
 #endif
     checkMQTTConnection(); // check MQTT
     checkTide();           // check tide
+    handleLights();        // double check on lighting
     delay(100);
   }
-
-  handleConsole(); // handle any commands from console
 }
