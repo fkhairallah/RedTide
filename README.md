@@ -9,6 +9,10 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
 
 # Version History
 
+## Version 2.2
+  - changed to 2 level dimming
+  - added preferences.h to save ledMODE
+
 ## Version 2.1
   RC2 -- Many changes:
     - Moved to FastLED library

@@ -6,8 +6,9 @@
 #include <Ticker.h>
 #include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 #include <PubSubClient.h>
+#include <Preferences.h>
 
-#define VERSION "V2.1" // N.B: document changes in README.md
+#define VERSION "V2.2" // N.B: document changes in README.md
 
 // include Pins
 #ifndef _PINS_H
@@ -35,13 +36,16 @@ extern char topLED[]; // nunber of leds in the top string
 extern char bottomLED[]; // nunber of leds in the bottom string
 extern char NoaaStation[];
 extern bool otaInProgress;  // stop doing stuff if we are uploading software
+extern Preferences prefs;   // used to save preferences to NVM
 
 void configureWIFI();
 void checkConnection ();
-void readConfigFromDisk();
-void writeConfigToDisk();
+//void readConfigFromDisk();
+//void writeConfigToDisk();
 void resetConfiguration();
-void configureOTA(char*);
+void readPreferences();
+void savePreferences();
+void configureOTA(char *);
 
 // in lighting
 void configureLED();          // update with actual # of LED

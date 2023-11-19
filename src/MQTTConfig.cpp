@@ -229,7 +229,7 @@ bool checkMQTTConnection() {
     if (mqtt_client.connect(clientName))
     {
       subscribeToTopics();
-      console.printf("Connected to MQTT as %s\n", clientName);
+      console.printf("Connected to MQTT as %s\r\n", clientName);
       char str[128];
       sprintf(str, "%s %s: @[%s] IP:%i.%i.%i.%i", clientName, VERSION, deviceLocation, WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
       mqtt_client.publish(mqtt_debug_topic, str, true);

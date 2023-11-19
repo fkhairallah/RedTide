@@ -13,7 +13,7 @@
 #define LED_UPDATE_INTERVAL 30000 // LED update interval
 
 bool ledStripON; // Led is on or off
-int ledMode;     // mode of display 1 - 2700K, 2 - rainbow,
+int ledMode = 1;     // mode of display 1 - 2700K, 2 - rainbow,
 CRGB leds[3][MAX_LEDS];
 long lastLEDUpdate; // hold last time update was sent to LED
 
@@ -37,7 +37,7 @@ void configureLED()
   FastLED.show();
 
   ledStripON = false;
-  ledMode = 1;
+  if (prefs.isKey("ledMode")) ledMode = prefs.getInt("ledMode");
 }
 
 /***
@@ -108,6 +108,7 @@ void setLEDPower(char *mode)
 void setLEDMode(int mode)
 {
   ledMode = mode;
+  prefs.putInt("ledMode", ledMode);  // store in preferences
   executeLED();
 }
 

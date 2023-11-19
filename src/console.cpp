@@ -17,7 +17,7 @@ void printLocalTime()
     return;
   }
   console.print(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  console.printf(" DST=%s\n", timeinfo.tm_isdst?"TRUE":"FALSE");
+  console.printf(" DST=%s\r\n", timeinfo.tm_isdst?"TRUE":"FALSE");
 }
 
 /*
@@ -43,23 +43,26 @@ void executeCustomCommands(char* commandString,char* parameterString)
   {
 
     printLocalTime();
-    console.printf("Next %s tide in %.2f hours (%f feet)\n", typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
+    console.printf("Next %s tide in %.2f hours (%f feet)\r\n", typeOfNextTide, minutesToNextTide/60, heightOfNextTide);
     console.printf("Marker at %i. cycle is %.1f, %.1f steps per minute\r\n", markerLocation, tideCycleLength, stepsPerMinute);
     console.print(&lastTideTime, "Last tide was @%A, %B %d %Y %H:%M:%S");
-    console.println(&nextTideTime, ", next one @%A, %B %d %Y %H:%M:%S\n");
+    console.println(&nextTideTime, ", next one @%A, %B %d %Y %H:%M:%S\r\n");
+    //console.printf("Prefs ledMode=%i,%s MQTT=%s #%s\r\n", prefs.getInt("ledMode"), prefs.getString("deviceLocation"), prefs.getString("mqtt_server"), prefs.getString("topLED"));
   }
 
   if (strcmp(commandString, "topled") == 0)
   {
     strcpy(topLED, parameterString);
-    writeConfigToDisk();
+    //writeConfigToDisk();
+    savePreferences();
     configureLED();
     console.printf("Number of LEDs changed to %s\r\n", topLED);
   }
   if (strcmp(commandString, "bottomled") == 0)
   {
     strcpy(bottomLED, parameterString);
-    writeConfigToDisk();
+    //writeConfigToDisk();
+    savePreferences();
     configureLED();
     console.printf("Number of LEDs changed to %s\r\n", bottomLED);
   }
@@ -96,7 +99,8 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
   if (strcmp(commandString, "noaa") == 0) {
     strcpy(NoaaStation, parameterString);
-    writeConfigToDisk();
+    //writeConfigToDisk();
+    savePreferences();
     console.printf("NOAA station changed to %s\r\n", NoaaStation);
   }
 }
@@ -144,14 +148,17 @@ void handleConsole()
     if (strcmp(console.commandString, "location") == 0)
     {
       strcpy(deviceLocation, console.parameterString);
-      writeConfigToDisk();
+      //writeConfigToDisk();
+      savePreferences();
+
       console.printf("location changed to %s\r\n", deviceLocation);
       console.println("Change will take effect after next reboot");
     }
     if (strcmp(console.commandString, "mqtt") == 0)
     {
       strcpy(mqttServer, console.parameterString);
-      writeConfigToDisk();
+      savePreferences();
+      //writeConfigToDisk();
       console.print("MQTT server changed to ");
       console.println(mqttServer);
       mqttDisconnect();

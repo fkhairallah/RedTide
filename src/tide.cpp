@@ -155,7 +155,7 @@ void getTide(struct tm now)
 
     char url[256];
 
-    if (debugMode) console.print("\nGetting tide information....");
+    if (debugMode) console.print("\r\nGetting tide information....");
 
     // the time library has a trick to do time calculation. You can
     // modify day, month or year with simple math (+ - * /)
@@ -207,7 +207,7 @@ void getTide(struct tm now)
         if (json.containsKey("predictions"))
         {
             JsonArray tides = json["predictions"];
-            if (debugMode) console.printf("NOAA sent %d preditions\n", tides.size());
+            if (debugMode) console.printf("NOAA sent %d preditions\r\n", tides.size());
             for (int i = 0; i < tides.size(); i++)
             {
                 // get next tide time into a workable format
@@ -219,7 +219,7 @@ void getTide(struct tm now)
 
                 int year, month, day, hour, min;
                 sscanf(t, "%d-%d-%d  %d:%d", &year, &month, &day, &hour, &min);
-                if (debugMode) console.printf("parsed %i/%i/%i %i:%i\n", year, month, day, hour, min);
+                if (debugMode) console.printf("parsed %i/%i/%i %i:%i\r\n", year, month, day, hour, min);
 
                 nextTideTime.tm_year = year - 1900;
                 nextTideTime.tm_mon = month - 1;
@@ -238,11 +238,11 @@ void getTide(struct tm now)
                     heightOfNextTide = atof(v);
                     tideCycleLength = difftime(tidett, mktime(&lastTideTime) ) / 60;
                     stepsPerMinute = STEPPER_MAX_RANGE / tideCycleLength;
-                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%.1f feet) spm %.1f\n", typeOfNextTide, minutesToNextTide, heightOfNextTide, stepsPerMinute);
+                    if (debugMode) console.printf("Next %s tide in %.2f minutes (%.1f feet) spm %.1f\r\n", typeOfNextTide, minutesToNextTide, heightOfNextTide, stepsPerMinute);
                     if (debugMode) console.print("Last Tide was at ");
                     if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
                     if (debugMode) console.print(" next at ");
-                    if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S\n");
+                    if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S\r\n");
                     invalidTide = false;
                     break;
                 }
@@ -310,7 +310,7 @@ void checkTide()
             stepsToTake = (int)markerNewLocation - markerLocation;
 
             if (debugMode)
-                console.printf("%0.1f minutes left - moving to %0.1f by %i\n", minutesToNextTide, markerNewLocation, stepsToTake);
+                console.printf("%0.1f minutes left - moving to %0.1f by %i\r\n", minutesToNextTide, markerNewLocation, stepsToTake);
 
             // move marker & show H/L indicator
             step(stepsToTake);

@@ -1,11 +1,12 @@
 #include <RedGlobals.h>
-#include <FS.h> //this needs to be first, or it all crashes and burns...
+//#include <FS.h> //this needs to be first, or it all crashes and burns...
 #include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
-#include <SPIFFS.h>
+//#include <SPIFFS.h>
 #include <ArduinoOTA.h>
 
 bool otaInProgress; // flags if OTA is in progress
 int secondsWithoutWIFI = 0; // counter the seconds without wifi
+Preferences prefs;    // preferences library
 
 // configuration parameters
 // Hostname, AP name & MQTT clientID
@@ -52,8 +53,15 @@ void configureWIFI()
     // clean FS, for testing
     // SPIFFS.format();
 
+    // initialize preferences library
+    prefs.begin(myHostName, false); // false:: read/write mode
+    //prefs.clear();    // clear all parameters
+
     // read configuration from FS json
-    readConfigFromDisk();
+    //readConfigFromDisk();
+    //savePreferences();
+    // get configuration from NVM
+    readPreferences();
 
 
 
@@ -128,8 +136,10 @@ void configureWIFI()
     configureOTA(myHostName);
 
     // save the custom parameters to FS
-    if (shouldSaveConfig)
-        writeConfigToDisk();
+    if (shouldSaveConfig) {
+        //writeConfigToDisk();
+        savePreferences();
+    }
 
     if (debugMode) console.printf("local ip: "); console.println(WiFi.localIP());
 
@@ -173,47 +183,55 @@ void checkConnection()
 
  * ********************************************************************************
 */
-void readConfigFromDisk()
-{
-    if (debugMode) console.println("Reading config...");
+// void readConfigFromDisk()
+// {
+//     if (debugMode) console.println("Reading config...");
 
-    if (SPIFFS.begin())
-    {
-        if (SPIFFS.exists("/config.json"))
-        {
-            // file exists, reading and loading
-            File configFile = SPIFFS.open("/config.json", "r");
-            if (configFile)
-            {
-                size_t size = configFile.size();
-                // Allocate a buffer to store contents of the file.
-                std::unique_ptr<char[]> buf(new char[size]);
+//     if (SPIFFS.begin())
+//     {
+//         if (SPIFFS.exists("/config.json"))
+//         {
+//             // file exists, reading and loading
+//             File configFile = SPIFFS.open("/config.json", "r");
+//             if (configFile)
+//             {
+//                 size_t size = configFile.size();
+//                 // Allocate a buffer to store contents of the file.
+//                 std::unique_ptr<char[]> buf(new char[size]);
 
-                configFile.readBytes(buf.get(), size);
-                DynamicJsonDocument json(1024);
-                auto deserializeError = deserializeJson(json, buf.get());
-                serializeJson(json, Serial);
-                if (!deserializeError)
-                { 
-                  if (json.containsKey("deviceLocation"))  strcpy(deviceLocation, json["deviceLocation"]);
-                  if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
-                  if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
-                  if (json.containsKey("topLED"))  strcpy(topLED, json["topLED"]);
-                  if (json.containsKey("bottomLED"))  strcpy(bottomLED, json["bottomLED"]);
-                  if (json.containsKey("NoaaStation")) strcpy(NoaaStation, json["NoaaStation"]);
-                }
-                else
-                {
-                    console.println("failed to load json config");
-                }
-            }
-        }
-    }
-    else
-    {
-        console.println("failed to mount FS");
-    }
-    // end read
+//                 configFile.readBytes(buf.get(), size);
+//                 DynamicJsonDocument json(1024);
+//                 auto deserializeError = deserializeJson(json, buf.get());
+//                 serializeJson(json, Serial);
+//                 if (!deserializeError)
+//                 { 
+//                   if (json.containsKey("deviceLocation"))  strcpy(deviceLocation, json["deviceLocation"]);
+//                   if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
+//                   if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
+//                   if (json.containsKey("topLED"))  strcpy(topLED, json["topLED"]);
+//                   if (json.containsKey("bottomLED"))  strcpy(bottomLED, json["bottomLED"]);
+//                   if (json.containsKey("NoaaStation")) strcpy(NoaaStation, json["NoaaStation"]);
+//                 }
+//                 else
+//                 {
+//                     console.println("failed to load json config");
+//                 }
+//             }
+//         }
+//     }
+//     else
+//     {
+//         console.println("failed to mount FS");
+//     }
+//     // end read
+// }
+void readPreferences() {
+  if (prefs.isKey("deviceLocation"))     strcpy(deviceLocation, prefs.getString("deviceLocation").c_str());
+  if (prefs.isKey("mqtt_server"))    strcpy(mqttServer, prefs.getString("mqtt_server").c_str());
+  if (prefs.isKey("mqtt_port"))    strcpy(mqttPort, prefs.getString("mqtt_port").c_str());
+  if (prefs.isKey("topLED"))    strcpy(topLED, prefs.getString("topLED").c_str());
+  if (prefs.isKey("bottomLED"))    strcpy(bottomLED, prefs.getString("bottomLED").c_str());
+  if (prefs.isKey("NoaaStation"))    strcpy(NoaaStation, prefs.getString("NoaaStation").c_str());
 }
 /*
  * ********************************************************************************
@@ -222,27 +240,39 @@ void readConfigFromDisk()
 
  * ********************************************************************************
 */
-void writeConfigToDisk()
+// void writeConfigToDisk()
+// {
+//     if (debugMode) console.println("saving config");
+//     DynamicJsonDocument json(1024);
+//     json["deviceLocation"] = deviceLocation;
+//     json["mqtt_server"] = mqttServer;
+//     json["mqtt_port"] = mqttPort;
+//     json["topLED"] = topLED;
+//     json["bottomLED"] = bottomLED;
+//     json["NoaaStation"] = NoaaStation;
+
+//     File configFile = SPIFFS.open("/config.json", "w");
+//     if (!configFile)
+//     {
+//         console.println("failed to open config file for writing");
+//     }
+
+//     serializeJson(json, Serial);
+//     serializeJson(json, configFile);
+//     configFile.close();
+//     // end save
+// }
+
+void savePreferences()
 {
-    if (debugMode) console.println("saving config");
-    DynamicJsonDocument json(1024);
-    json["deviceLocation"] = deviceLocation;
-    json["mqtt_server"] = mqttServer;
-    json["mqtt_port"] = mqttPort;
-    json["topLED"] = topLED;
-    json["bottomLED"] = bottomLED;
-    json["NoaaStation"] = NoaaStation;
-
-    File configFile = SPIFFS.open("/config.json", "w");
-    if (!configFile)
-    {
-        console.println("failed to open config file for writing");
-    }
-
-    serializeJson(json, Serial);
-    serializeJson(json, configFile);
-    configFile.close();
-    // end save
+  prefs.putString("deviceLocation",String(deviceLocation));
+  prefs.putString("mqtt_server", String(mqttServer));
+  prefs.putString("mqtt_port", String(mqttPort));
+  prefs.putString("topLED", String(topLED));
+  prefs.putString("bottomLED", String(bottomLED));
+  prefs.putString("NoaaStation", String(NoaaStation));
+  if (debugMode) 
+    console.println("Preferences saved!");
 }
 
 /*
