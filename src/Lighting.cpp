@@ -126,14 +126,15 @@ void executeLED()
       break;
 
     case 3: // navy blue
-      fill_solid(leds[0], NUM_LEDS_TOP, CRGB(0, 128, 128));
-      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB(0, 128, 128));
+      fill_solid(leds[0], NUM_LEDS_TOP, CRGB(64,64,64));
+      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB(64,64,64));
       if (debugMode) console.println("3 - dimmmmmm");
       break;
 
-    case 4: // Xmas
-      // fillList(rgbList, 2);
-      console.println("XMAS");
+    case 4: // Navy 
+      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Navy);
+      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Navy);
+      console.println("Navy");
       break;
     case 5: // Rainbow
       fillRainbow();
