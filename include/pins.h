@@ -12,8 +12,6 @@
 #define LED_DATA_PIN_BOTTOM 22  // LED data pin (ESP32 DevKit-V4)
 #define LED_DATA_PIN_TIDE 21    // drive tide H/L indicator
 #define MAX_LEDS 64             // Make sure this is larger than any of the NUM LEDS
-#define NUM_LEDS_TOP 20         // default # of LEDS (x3 since they are 12V)
-#define NUM_LEDS_BOTTOM 20      // default  # of LEDS (x3 since they are 12V)
 #define NUM_LEDS_TIDE 3         // number of pixels in tides H/L indicator
 
 #define COIL_A1 13

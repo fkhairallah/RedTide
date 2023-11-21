@@ -243,6 +243,7 @@ void getTide(struct tm now)
                     if (debugMode) console.print(&lastTideTime, "%A, %B %d %Y %H:%M:%S");
                     if (debugMode) console.print(" next at ");
                     if (debugMode) console.println(&nextTideTime, "%A, %B %d %Y %H:%M:%S\r\n");
+                    setTideMarker(typeOfNextTide[0]);
                     invalidTide = false;
                     break;
                 }
@@ -306,7 +307,7 @@ void checkTide()
             {
                 markerNewLocation = minutesToNextTide * stepsPerMinute;
             }
-            setTideMarker(typeOfNextTide[0]);
+            //setTideMarker(typeOfNextTide[0]);
             stepsToTake = (int)markerNewLocation - markerLocation;
 
             if (debugMode)

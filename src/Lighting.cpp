@@ -14,7 +14,12 @@
 
 bool ledStripON; // Led is on or off
 int ledMode = -1;     // mode of display 1 - 2700K, 2 - rainbow,
-CRGB leds[3][MAX_LEDS];
+//CRGB leds[3][MAX_LEDS];
+CRGB topShelfLEDS[MAX_LEDS]; 
+CRGB bottomShelfLEDS[MAX_LEDS]; 
+CRGB tideLEDS[NUM_LEDS_TIDE]; 
+
+
 long lastLEDUpdate; // hold last time update was sent to LED
 
 /**
@@ -28,12 +33,13 @@ void configureLED()
 {
 
   console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(leds[0], atoi(topLED));
-  FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(leds[1], atoi(bottomLED));
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, GRB>(leds[2], NUM_LEDS_TIDE);
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(topShelfLEDS, atoi(topLED));
+  FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(bottomShelfLEDS, atoi(bottomLED));
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, GRB>(tideLEDS, NUM_LEDS_TIDE);
 
   FastLED.clear();
   FastLED.show();
+  FastLED.delay(50);
 
   ledStripON = false;
 
@@ -43,15 +49,15 @@ void configureLED()
 
 /***
  * 
- * This is called from loo() repeatadly. It refreshes the lights
+ * This is called from loop() repeatadly. It refreshes the lights
  * 
  * This is dones to deals with lights changing randomly after about 30 minutes
  * 
 */
 void handleLights() {
 
-  EVERY_N_MINUTES(5) {
-    executeLED();
+  EVERY_N_SECONDS(10) {
+    //FastLED.show();
   }
 
 }
@@ -65,9 +71,9 @@ void testLED()
   console.printf("ledMode = %i [%i]\r\n", ledMode, prefs.getInt("ledMode"));
   // for (int i = 0; i < NUM_LEDS_TOP; i++)
   // {
-  //   leds[0][i] = CRGB::White;
+  //   topShelfLEDS[i] = CRGB::White;
   //   FastLED.show();
-  //   delay(1000);
+  //   FastLED.delay(1000);
   // }
 }
 
@@ -118,56 +124,50 @@ void executeLED()
     {
     case 2: // dimmed 
       FastLED.setTemperature(Candle);
-      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Grey);
-      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Grey);
+      fill_solid(topShelfLEDS, atoi(topLED), CRGB::Grey);
+      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Grey);
       if (debugMode) console.println("DIMMED");
       break;
 
     case 3: // very dimm
       FastLED.setTemperature(Candle);
-      fill_solid(leds[0], NUM_LEDS_TOP, CRGB(64,64,64));
-      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB(64,64,64));
+      fill_solid(topShelfLEDS, atoi(topLED), CRGB(64,64,64));
+      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB(64,64,64));
       if (debugMode) console.println("3 - dimmmmmm");
       break;
 
     case 4: // Navy 
       FastLED.setTemperature(Tungsten100W);  
-      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Navy);
-      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Navy);
+      fill_solid(topShelfLEDS, atoi(topLED), CRGB::Navy);
+      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Navy);
       if (debugMode) console.println("Navy");
       break;
     case 5: // Rainbow
       FastLED.setTemperature(Tungsten100W);
-      fillRainbow();
+      fill_rainbow(topShelfLEDS, atoi(topLED), 100);
+      fill_rainbow(bottomShelfLEDS, atoi(bottomLED),100);
       if (debugMode) console.println("RAINBOW");
       break;
     case 1:  // 100W tungsten -- Pam's favorite
     default: // full white
       FastLED.setTemperature(Tungsten100W);
-      fill_solid(leds[0], NUM_LEDS_TOP, CRGB::White);
-      fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::White);
+      fill_solid(topShelfLEDS, atoi(topLED), CRGB::White);
+      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::White);
       if (debugMode) console.println("WHITE");
     }
   }
   else
   {
-    fill_solid(leds[0], NUM_LEDS_TOP, CRGB::Black);
-    fill_solid(leds[1], NUM_LEDS_BOTTOM, CRGB::Black);
+    fill_solid(topShelfLEDS, atoi(topLED), CRGB::Black);
+    fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Black);
     if (debugMode) console.println("OFF");
   }
 
   FastLED.show();
-  if (debugMode) console.println("LEDs updated");
+  FastLED.delay(50);
+
 }
 
-
-
-// fill the strip with a sequence of RGB color
-void fillRainbow()
-{
-  fill_rainbow(leds[0], atoi(topLED), 100);
-  FastLED.show();
-}
 
 
 /**
@@ -187,17 +187,18 @@ void setTideMarker(char t)
 
   if (t == 'H')
   {
-    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkTurquoise);
-    leds[2][0] = CRGB::DarkGrey;
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::DarkTurquoise);
+    tideLEDS[0] = CRGB::DarkGrey;
   }
   else if (t == 'L')
   {
-    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::DarkRed);
-    leds[2][2] = CRGB::DarkGrey;
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::DarkRed);
+    tideLEDS[2] = CRGB::DarkGrey;
   }
   else
   {
-    fill_solid(leds[2], NUM_LEDS_TIDE, CRGB::White);
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::White);
   }
   FastLED.show();
+  FastLED.delay(50);
 }
