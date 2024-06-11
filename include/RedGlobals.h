@@ -8,7 +8,7 @@
 #include <PubSubClient.h>
 #include <Preferences.h>
 
-#define VERSION "V2.2" // N.B: document changes in README.md
+#define VERSION "V2.3" // N.B: document changes in README.md
 
 // include Pins
 #ifndef _PINS_H
@@ -20,7 +20,7 @@
 // tide data
 #define NOAA_BASE_URL "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&datum=MSL&time_zone=lst_ldt&units=english&interval=hilo&format=json"
 #define NOAA_DEFAULT_STATION "8722718"
-#define TIDE_UPDATE_INTERVAL 500000L
+#define TIDE_UPDATE_INTERVAL 900000L    // 500s = 8.3 min, 900 = 15 min
 #define STEPPER_NUMBER_STEPS 2048 // 28BYJ-48 motor
 
 // in main
@@ -72,6 +72,7 @@ void mqttDisconnect();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 
 // in tide.cpp
+extern bool EnableTide;
 extern double minutesToNextTide;
 extern double heightOfNextTide;
 extern char typeOfNextTide[];

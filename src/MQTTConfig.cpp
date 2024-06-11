@@ -25,6 +25,8 @@ char mqtt_debug_set_topic[64] = "tide/default/debug/set";                     //
 char mqtt_led_command[64] = "tide/LOCATION/set"; // contains LED control commands
 char mqtt_led_mode[64] = "tide/LOCATION/mode";   // contains LED mode
 
+char mqtt_tide_command[64] = "tide/LOCATION/tide";  // start and stop tide indicator
+
 int secondsWithoutMQTT;
 
 // MQTT Settings
@@ -57,8 +59,8 @@ void configureTopics()
 #endif
   sprintf(mqtt_led_command, "%s/set", mqtt_topic);
   sprintf(mqtt_led_mode, "%s/mode", mqtt_topic);
+  sprintf(mqtt_tide_command, "%s/tide", mqtt_topic);
 }
-
 
 // this is called when a connection is established with the server
 // it subscribe to all define and needed topics
@@ -68,9 +70,10 @@ void subscribeToTopics()
 #ifdef DISPLAY_PRESENT
   mqtt_client.subscribe(mqtt_requiredTemperature_topic);
 #endif
-  mqtt_led_command,mqtt_client.subscribe(mqtt_led_command);
-  mqtt_led_mode,mqtt_client.subscribe(mqtt_led_mode);
-  mqtt_debug_set_topic, mqtt_client.subscribe(mqtt_debug_set_topic);
+  mqtt_client.subscribe(mqtt_led_command);
+  mqtt_client.subscribe(mqtt_led_mode);
+  mqtt_client.subscribe(mqtt_tide_command);
+  mqtt_client.subscribe(mqtt_debug_set_topic);
 }
 
 // This routine is called when an MQTT message is received 
@@ -95,7 +98,14 @@ bool processMQTTcommand(char* topic, char* message)
     mqtt_client.publish(mqtt_topic, message);
     return true;
   }
-  
+
+  // turn tide on/off
+  if (strcmp(topic, mqtt_tide_command) == 0)
+  {
+    EnableTide =  (message == "ON");
+    return true;
+  }
+
 #ifdef DISPLAY_PRESENT
   if (strcmp(topic, mqtt_requiredTemperature_topic) == 0)
   {

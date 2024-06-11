@@ -6,6 +6,7 @@
 
 // range of dial -- keep motor operating within
 #define STEPPER_MAX_RANGE 4250L // measured
+bool EnableTide = true;
 
 // Last time tide data was updated
 unsigned long lastMarkerUpdate; // interval between marker update
@@ -268,6 +269,11 @@ void checkTide()
 {
     double markerNewLocation;
     int stepsToTake; 
+
+    if (!EnableTide) {
+        setTideMarker('x');
+        return;
+    }
 
     // check on time every so often
     if ((millis() - lastMarkerUpdate) > TIDE_UPDATE_INTERVAL)

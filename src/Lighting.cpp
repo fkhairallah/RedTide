@@ -197,7 +197,7 @@ void setTideMarker(char t)
   }
   else
   {
-    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::White);
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::Black);
   }
   FastLED.show();
   FastLED.delay(50);
