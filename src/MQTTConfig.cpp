@@ -72,7 +72,12 @@ void subscribeToTopics()
 #endif
   mqtt_client.subscribe(mqtt_led_command);
   mqtt_client.subscribe(mqtt_led_mode);
+
+  // tide on/off topic, start with ON
   mqtt_client.subscribe(mqtt_tide_command);
+  mqtt_client.publish(mqtt_tide_command, "ON");
+
+  // debug topic (?)
   mqtt_client.subscribe(mqtt_debug_set_topic);
 }
 
@@ -102,7 +107,7 @@ bool processMQTTcommand(char* topic, char* message)
   // turn tide on/off
   if (strcmp(topic, mqtt_tide_command) == 0)
   {
-    EnableTide =  (message == "ON");
+    EnableTide =  strcmp(message,"ON") == 0;
     return true;
   }
 
