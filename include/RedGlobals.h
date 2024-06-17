@@ -59,8 +59,8 @@ void fillRainbow();
 void setTideMarker(char t);
 void handleLights();
 
-    // in console.ino
-    extern dConsole console;
+// in console.ino
+extern dConsole console;
 void setupConsole();
 void handleConsole();
 
@@ -72,7 +72,7 @@ void mqttDisconnect();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 
 // in tide.cpp
-extern bool EnableTide;
+extern bool enableTide;
 extern double minutesToNextTide;
 extern double heightOfNextTide;
 extern char typeOfNextTide[];
@@ -82,6 +82,8 @@ extern double tideCycleLength;   // length of this tide cycle in minutes
 extern double stepsPerMinute;    // depending on tide cycle, number of steps per minute
 extern int markerLocation;
 void configureTide();
+void pauseTideUpdate();
+void resumeTideUpdate();
 void checkTide();
 void getTide(struct tm now);
 void homeStepper();

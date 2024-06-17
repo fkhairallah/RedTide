@@ -107,7 +107,10 @@ bool processMQTTcommand(char* topic, char* message)
   // turn tide on/off
   if (strcmp(topic, mqtt_tide_command) == 0)
   {
-    EnableTide =  strcmp(message,"ON") == 0;
+    if (strcmp(message,"OFF") == 0) 
+      pauseTideUpdate();
+    else
+      resumeTideUpdate();
     return true;
   }
 
