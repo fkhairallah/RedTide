@@ -1,0 +1,26 @@
+{
+    "name": "[RED]Tide",
+    "device_id": "red-tide",
+    "device_stats_interval": 300,
+    "wifi": {
+        "ssid": "Stonewall Jackson",
+        "password": "fady khairallah"
+    },
+    "mqtt": {
+        "host": "192.168.68.10",
+        "port": 1883,
+        "base_topic": "RED/",
+        "auth": false,
+        "username": "user",
+        "password": "pass"
+    },
+    "ota": {
+        "enabled": true
+    },
+    "settings": {
+        "NoaaStation" : 8722718,
+        "topLED": 20,
+        "bottomLED": 20,
+        "ledMode": -1
+    }
+}

@@ -1,52 +1,130 @@
+/************************************************************************************
+
+   [RED]Tide
+
+   Configuration parameters are found in .h file
+
+   Tide clock in an old panasonic table-top radio.
+
+  
+
+ *************************************************************************************/
 #include <RedGlobals.h>
-Preferences prefs; // preferences library
+
+// some global definitions...
+bool debugMode = false;
+
+
+/*
+ * ********************************************************************************
+
+      Homie setup & loop
+
+
+ * ********************************************************************************
+*/
+HomieNode tideNode("tide", "Tide Clock", "switch");
+HomieNode ledNode("led", "LED lights", "switch");
+HomieNode debugNode("debug","Debug Mode", "switch");
+
+// custom settings
+HomieSetting<long> noaaStationNumber("NoaaStation", "NoaaStation Number");
+HomieSetting<long> topLED("topLED", "Number of LED in top shelf");
+HomieSetting<long> bottomLED("bottomLED", "Number of LED in bottom shelf");
+HomieSetting<long> ledMode("ledMode", "mode of display");
+
+// Code which should run AFTER the WiFi is connected.
+void setupHandler()
+{
+
+  Homie.getLogger() << "noaaStation: "
+                    << noaaStationNumber.get()
+                    << endl;
+
+  // check if we need to be in debugMode
+  
+
+
+  // configure all LED lines
+  configureLED();
+  //setTideMarker('?');
+
+  configureTide();
+}
+
+// Code which should run in normal loop(), after setupHandler() finished.
+void loopHandler()
+{
+  checkTide();     // check tide
+  handleLights();  // double check on lighting
+  handleConsole(); // handle any commands from console
+}
+
+
+bool changeLights(const HomieRange &range, const String &value)
+{
+  Homie.getLogger() << "lights Handler got " << value << endl;
+  return true;
+}
+
+bool changeMode(const HomieRange &range, const String &value)
+{
+  Homie.getLogger() << "mode Handler got " << value << endl;
+  // lightNode.setProperty("pause").send(value);
+
+  // Homie.getMqttClient().publish("foo", 1, true,  value.c_str());
+
+  return true;
+}
+bool changeTide(const HomieRange &range, const String &value)
+{
+  Homie.getLogger() << "Tide Handler got " << value << endl;
+  // lightNode.setProperty("pause").send(value);
+
+  // Homie.getMqttClient().publish("foo", 1, true,  value.c_str());
+
+  return true;
+}
+
+bool changeDebugMode(const HomieRange &range, const String &value)
+{
+  debugMode = (value == "true");
+  Homie.getLogger() << "Debug Mode is now: " << debugMode << endl;
+  return true;
+}
 
 void setup()
 {
 
-  // initialize preferences library
-  prefs.begin(myHostName, false); // false:: read/write mode
-  debugMode = prefs.getBool("debugMode");
-  // prefs.clear();    // clear all parameters
+  // minor hardware setup
+  pinMode(blueLED, OUTPUT);
 
-  // setup Console
   setupConsole();
 
-  // configure all LED lines
-  configureLED();
-  setTideMarker('?');
+  // console.enableSerial(&Serial, true);
+  console.print("[RED]Tide ");
+  console.println(VERSION);
+  Homie_setFirmware("red-tide", VERSION);
+  Homie.setLedPin(blueLED, HIGH);
+  Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler);
 
-  configureWIFI(); // configure wifi
-  configureMQTT();
+  // define the channels
+  ledNode.advertise("power").setName("LED power").setDatatype("boolean").settable(changeLights);
+  ledNode.advertise("mode").setName("LED mode").setDatatype("boolean").settable(changeMode);
+  tideNode.advertise("pause").setName("Tide").setDatatype("boolean").settable(changeTide);
+  debugNode.advertise("on").setName("On").setDatatype("boolean").settable(changeDebugMode);
 
-  configureTide();
+  Serial << Homie.getConfiguration().deviceId << " Homie Setup...";
+  Homie.setup();
+  Serial << "Done" << endl;
 
-#ifdef TEMP_SENSOR_PRESENT
-  // configure thermostat sensor
-  tempAccumulator = 0;
-  tempNumberOfReading = 0;
-  averageTemp = -9999;
-  lastTempSend = millis();
-  configSensors(_TEMP_SENSOR_PERIOD, &updateTemperature);
-#endif
+  configureOTA(Homie.getConfiguration().deviceId);
+
+
 }
 
 void loop()
 {
-  // This should be the first line in loop();
-  checkConnection(); // check WIFI connection & Handle OTA
-  handleConsole();   // handle any commands from console
-
-  // Work to be done, but only if we aren't updating the software
-  if (!otaInProgress)
-  {
-#ifdef TEMP_SENSOR_PRESENT
-    // service temperature and other sensors
-    serviceSensors();
-#endif
-    checkMQTTConnection(); // check MQTT
-    checkTide();           // check tide
-    handleLights();        // double check on lighting
-    delay(100);
-  }
+  Homie.loop();
+  handleOTA();
 }

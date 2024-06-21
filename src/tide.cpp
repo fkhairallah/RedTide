@@ -1,11 +1,13 @@
 #include <RedGlobals.h>
 #include <time.h>
-#include <HTTPClient.h>
 #include <Stepper.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 
 // range of dial -- keep motor operating within
 #define STEPPER_MAX_RANGE 4250L // measured
 bool enableTide = true;
+long noaaStation = NOAA_DEFAULT_STATION;
 
 // Last time tide data was updated
 unsigned long lastMarkerUpdate; // interval between marker update
@@ -130,7 +132,7 @@ void configureTide()
 
     // give 2s delay before updating tide to allow system to fully configure
     lastMarkerUpdate = millis() + 2000 - TIDE_UPDATE_INTERVAL;
-
+    
     struct tm today;
     if (!getLocalTime(&today))
     {
@@ -187,12 +189,12 @@ void getTide(struct tm now)
     // now we generate the GET request and get the JSON response from NOAA
 
     // form the URL
-    sprintf(url, "%s&station=%s&begin_date=%02d/%02d/%d&end_date=%02d/%02d/%d",
-            NOAA_BASE_URL, NoaaStation,
+    sprintf(url, "%s&station=%ld&begin_date=%02d/%02d/%d&end_date=%02d/%02d/%d",
+            NOAA_BASE_URL, noaaStation,
             now.tm_mon + 1, now.tm_mday, now.tm_year + 1900,
             tomorrow.tm_mon + 1, tomorrow.tm_mday, tomorrow.tm_year + 1900);
 
-    // console.println(url);
+    if (debugMode) console.println(url);
 
     HTTPClient http;
     String payload; // response possibly containing JSON
@@ -282,6 +284,14 @@ void getTide(struct tm now)
                 }
             }
         }
+        else
+        {
+            console.println("JSON error: 'predictions' missing");
+        }
+    }
+    else
+    {
+        console.println("Serialization error!");
     }
 }
 

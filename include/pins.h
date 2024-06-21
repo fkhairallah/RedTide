@@ -7,7 +7,9 @@
 #define _PINS_H
 
 // hardware pin definitions
-#define pgm_pin 0               // PGM on reset pin - can be used for control 
+#define pgm_pin 0               // PGM on reset pin - can be used for control
+#define blueLED 2               // ESP32-Dev-kit
+
 #define LED_DATA_PIN_TOP 23     // LED data pin (ESP32 DevKit-V4)
 #define LED_DATA_PIN_BOTTOM 22  // LED data pin (ESP32 DevKit-V4)
 #define LED_DATA_PIN_TIDE 21    // drive tide H/L indicator

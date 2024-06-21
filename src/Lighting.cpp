@@ -13,11 +13,14 @@
 #define LED_UPDATE_INTERVAL 30000 // LED update interval
 
 bool ledStripON; // Led is on or off
-int ledMode = -1;     // mode of display 1 - 2700K, 2 - rainbow,
+//int ledMode = -1;     // mode of display 1 - 2700K, 2 - rainbow,
+//int topLED = 25;
+//int bottomLED = 50;
+
 //CRGB leds[3][MAX_LEDS];
 CRGB topShelfLEDS[MAX_LEDS]; 
 CRGB bottomShelfLEDS[MAX_LEDS]; 
-CRGB tideLEDS[NUM_LEDS_TIDE]; 
+CRGB tideLEDS[NUM_LEDS_TIDE];
 
 
 long lastLEDUpdate; // hold last time update was sent to LED
@@ -32,9 +35,9 @@ long lastLEDUpdate; // hold last time update was sent to LED
 void configureLED()
 {
 
-  console.printf("Configuring top shelf with %s LEDs\r\n", topLED);
-  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(topShelfLEDS, atoi(topLED));
-  FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(bottomShelfLEDS, atoi(bottomLED));
+  console.printf("Configuring top shelf with %ld LEDs\r\n", topLED.get());
+  FastLED.addLeds<WS2811, LED_DATA_PIN_TOP, BRG>(topShelfLEDS, topLED.get());
+  FastLED.addLeds<WS2811, LED_DATA_PIN_BOTTOM, BRG>(bottomShelfLEDS, bottomLED.get());
   FastLED.addLeds<WS2811, LED_DATA_PIN_TIDE, GRB>(tideLEDS, NUM_LEDS_TIDE);
 
   FastLED.clear();
@@ -43,8 +46,6 @@ void configureLED()
 
   ledStripON = false;
 
-  ledMode = prefs.getInt("ledMode");
-  
 }
 
 /***
@@ -68,7 +69,7 @@ void handleLights() {
  */
 void testLED()
 {
-  console.printf("ledMode = %i [%i]\r\n", ledMode, prefs.getInt("ledMode"));
+  console.printf("ledMode = %i [%i]\r\n", ledMode.get());
   // for (int i = 0; i < NUM_LEDS_TOP; i++)
   // {
   //   topShelfLEDS[i] = CRGB::White;
@@ -110,8 +111,8 @@ void setLEDPower(char *mode)
 
 void setLEDMode(int mode)
 {
-  ledMode = mode;
-  prefs.putInt("ledMode", ledMode);  // store in preferences
+  //ledMode = mode;
+  //prefs.putInt("ledMode", ledMode);  // store in preferences
   executeLED();
 }
 
@@ -120,46 +121,46 @@ void executeLED()
 
   if (ledStripON) // if ON determine what to display
   {
-    switch (ledMode)
+    switch (ledMode.get())
     {
     case 2: // dimmed 
       FastLED.setTemperature(Candle);
-      fill_solid(topShelfLEDS, atoi(topLED), CRGB::Grey);
-      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Grey);
+      fill_solid(topShelfLEDS, topLED.get(), CRGB::Grey);
+      fill_solid(bottomShelfLEDS, bottomLED.get(), CRGB::Grey);
       if (debugMode) console.println("DIMMED");
       break;
 
     case 3: // very dimm
       FastLED.setTemperature(Candle);
-      fill_solid(topShelfLEDS, atoi(topLED), CRGB(64,64,64));
-      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB(64,64,64));
+      fill_solid(topShelfLEDS, topLED.get(), CRGB(64, 64, 64));
+      fill_solid(bottomShelfLEDS, bottomLED.get(), CRGB(64, 64, 64));
       if (debugMode) console.println("3 - dimmmmmm");
       break;
 
     case 4: // Navy 
-      FastLED.setTemperature(Tungsten100W);  
-      fill_solid(topShelfLEDS, atoi(topLED), CRGB::Navy);
-      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Navy);
+      FastLED.setTemperature(Tungsten100W);
+      fill_solid(topShelfLEDS, topLED.get(), CRGB::Navy);
+      fill_solid(bottomShelfLEDS, bottomLED.get(), CRGB::Navy);
       if (debugMode) console.println("Navy");
       break;
     case 5: // Rainbow
       FastLED.setTemperature(Tungsten100W);
-      fill_rainbow(topShelfLEDS, atoi(topLED), 100);
-      fill_rainbow(bottomShelfLEDS, atoi(bottomLED),100);
+      fill_rainbow(topShelfLEDS, topLED.get(), 100);
+      fill_rainbow(bottomShelfLEDS, bottomLED.get(), 100);
       if (debugMode) console.println("RAINBOW");
       break;
     case 1:  // 100W tungsten -- Pam's favorite
     default: // full white
       FastLED.setTemperature(Tungsten100W);
-      fill_solid(topShelfLEDS, atoi(topLED), CRGB::White);
-      fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::White);
+      fill_solid(topShelfLEDS, topLED.get(), CRGB::White);
+      fill_solid(bottomShelfLEDS, bottomLED.get(), CRGB::White);
       if (debugMode) console.println("WHITE");
     }
   }
   else
   {
-    fill_solid(topShelfLEDS, atoi(topLED), CRGB::Black);
-    fill_solid(bottomShelfLEDS, atoi(bottomLED), CRGB::Black);
+    fill_solid(topShelfLEDS, topLED.get(), CRGB::Black);
+    fill_solid(bottomShelfLEDS, bottomLED.get(), CRGB::Black);
     if (debugMode) console.println("OFF");
   }
 

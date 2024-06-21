@@ -50,22 +50,22 @@ void executeCustomCommands(char* commandString,char* parameterString)
     //console.printf("Prefs ledMode=%i,%s MQTT=%s #%s\r\n", prefs.getInt("ledMode"), prefs.getString("deviceLocation"), prefs.getString("mqtt_server"), prefs.getString("topLED"));
   }
 
-  if (strcmp(commandString, "topled") == 0)
-  {
-    strcpy(topLED, parameterString);
-    //writeConfigToDisk();
-    savePreferences();
-    configureLED();
-    console.printf("Number of LEDs changed to %s\r\n", topLED);
-  }
-  if (strcmp(commandString, "bottomled") == 0)
-  {
-    strcpy(bottomLED, parameterString);
-    //writeConfigToDisk();
-    savePreferences();
-    configureLED();
-    console.printf("Number of LEDs changed to %s\r\n", bottomLED);
-  }
+  // if (strcmp(commandString, "topled") == 0)
+  // {
+  //   strcpy(topLED, parameterString);
+  //   //writeConfigToDisk();
+  //   savePreferences();
+  //   configureLED();
+  //   console.printf("Number of LEDs changed to %s\r\n", topLED);
+  // }
+  // if (strcmp(commandString, "bottomled") == 0)
+  // {
+  //   strcpy(bottomLED, parameterString);
+  //   //writeConfigToDisk();
+  //   savePreferences();
+  //   configureLED();
+  //   console.printf("Number of LEDs changed to %s\r\n", bottomLED);
+  // }
 
   if (strcmp(commandString, "test") == 0)
   {
@@ -97,12 +97,12 @@ void executeCustomCommands(char* commandString,char* parameterString)
     homeStepper();
   }
 
-  if (strcmp(commandString, "noaa") == 0) {
-    strcpy(NoaaStation, parameterString);
-    //writeConfigToDisk();
-    savePreferences();
-    console.printf("NOAA station changed to %s\r\n", NoaaStation);
-  }
+  // if (strcmp(commandString, "noaa") == 0) {
+  //   strcpy(NoaaStation, parameterString);
+  //   //writeConfigToDisk();
+  //   savePreferences();
+  //   console.printf("NOAA station changed to %s\r\n", NoaaStation);
+  // }
 }
 
 /*
@@ -133,9 +133,9 @@ void handleConsole()
       console.print(MQTT_TOPIC_PREFIX);
       console.print(" ");
       console.println(VERSION);
-      console.printf("Host: %s @", myHostName);
-      console.println(WiFi.localIP().toString());
-      console.printf("MQTT Server %s, port: %s, %s, LEDs: %s/%s\r\n", mqttServer, mqttPort, deviceLocation,  topLED,bottomLED);
+      // console.printf("Host: %s @", myHostName);
+      // console.println(WiFi.localIP().toString());
+      // console.printf("MQTT Server %s, port: %s, %s, LEDs: %s/%s\r\n", mqttServer, mqttPort, deviceLocation,  topLED,bottomLED);
       console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
     }
@@ -144,32 +144,23 @@ void handleConsole()
       debugMode = !debugMode;
       console.print("Debug mode is now ");
       console.println(debugMode);
-      prefs.putBool("debugMode", debugMode);
+      //prefs.putBool("debugMode", debugMode);
     }
-    if (strcmp(console.commandString, "location") == 0)
-    {
-      strcpy(deviceLocation, console.parameterString);
-      //writeConfigToDisk();
-      savePreferences();
+    // if (strcmp(console.commandString, "location") == 0)
+    // {
+    //   strcpy(deviceLocation, console.parameterString);
+    //   //writeConfigToDisk();
+    //   savePreferences();
 
-      console.printf("location changed to %s\r\n", deviceLocation);
-      console.println("Change will take effect after next reboot");
-    }
-    if (strcmp(console.commandString, "mqtt") == 0)
-    {
-      strcpy(mqttServer, console.parameterString);
-      savePreferences();
-      //writeConfigToDisk();
-      console.print("MQTT server changed to ");
-      console.println(mqttServer);
-      mqttDisconnect();
-    }
-    if (strcmp(console.commandString, "reset") == 0)
-    {
-      console.print("Reseting configuration...");
-      resetConfiguration();
-      console.println(" Done.");
-    }
+    //   console.printf("location changed to %s\r\n", deviceLocation);
+    //   console.println("Change will take effect after next reboot");
+    // }
+    // if (strcmp(console.commandString, "reset") == 0)
+    // {
+    //   console.print("Reseting configuration...");
+    //   resetConfiguration();
+    //   console.println(" Done.");
+    // }
     if (strcmp(console.commandString, "reboot") == 0)
     {
       console.print("Rebooting...");
