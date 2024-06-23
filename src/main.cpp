@@ -6,14 +6,13 @@
 
    Tide clock in an old panasonic table-top radio.
 
-  
+
 
  *************************************************************************************/
 #include <RedGlobals.h>
 
 // some global definitions...
 bool debugMode = false;
-
 
 /*
  * ********************************************************************************
@@ -25,7 +24,7 @@ bool debugMode = false;
 */
 HomieNode tideNode("tide", "Tide Clock", "switch");
 HomieNode ledNode("led", "LED lights", "switch");
-HomieNode debugNode("debug","Debug Mode", "switch");
+HomieNode debugNode("debug", "Debug Mode", "switch");
 
 // custom settings
 HomieSetting<long> noaaStationNumber("NoaaStation", "NoaaStation Number");
@@ -41,13 +40,11 @@ void setupHandler()
                     << noaaStationNumber.get()
                     << endl;
 
-  // check if we need to be in debugMode
-  
-
+  debugNode.setProperty("on").send(debugMode ? "true" : "false");
 
   // configure all LED lines
   configureLED();
-  //setTideMarker('?');
+  // setTideMarker('?');
 
   configureTide();
 }
@@ -60,19 +57,29 @@ void loopHandler()
   handleConsole(); // handle any commands from console
 }
 
-
 bool changeLights(const HomieRange &range, const String &value)
 {
-  Homie.getLogger() << "lights Handler got " << value << endl;
-  return true;
+  bool res = false;
+  if (debugMode)
+    Homie.getLogger() << "lights Handler got " << value << endl;
+
+  if (value == "true")
+    res = ledON();
+  else
+    res = ledOFF();
+
+  ledNode.setProperty("power").send(value);
+  return res;
 }
 
 bool changeMode(const HomieRange &range, const String &value)
 {
-  Homie.getLogger() << "mode Handler got " << value << endl;
-  // lightNode.setProperty("pause").send(value);
+  if (debugMode)
+    Homie.getLogger() << "mode Handler got " << std::stol(value.c_str()) << endl;
 
-  // Homie.getMqttClient().publish("foo", 1, true,  value.c_str());
+  setLEDMode(std::stol(value.c_str()));
+  
+  ledNode.setProperty("mode").send(value);
 
   return true;
 }
@@ -89,6 +96,7 @@ bool changeTide(const HomieRange &range, const String &value)
 bool changeDebugMode(const HomieRange &range, const String &value)
 {
   debugMode = (value == "true");
+  debugNode.setProperty("on").send(debugMode ? "true" : "false");
   Homie.getLogger() << "Debug Mode is now: " << debugMode << endl;
   return true;
 }
@@ -112,6 +120,7 @@ void setup()
   ledNode.advertise("power").setName("LED power").setDatatype("boolean").settable(changeLights);
   ledNode.advertise("mode").setName("LED mode").setDatatype("boolean").settable(changeMode);
   tideNode.advertise("pause").setName("Tide").setDatatype("boolean").settable(changeTide);
+
   debugNode.advertise("on").setName("On").setDatatype("boolean").settable(changeDebugMode);
 
   Serial << Homie.getConfiguration().deviceId << " Homie Setup...";
@@ -119,8 +128,6 @@ void setup()
   Serial << "Done" << endl;
 
   configureOTA(Homie.getConfiguration().deviceId);
-
-
 }
 
 void loop()

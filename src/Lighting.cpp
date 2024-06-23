@@ -108,11 +108,21 @@ void setLEDPower(char *mode)
 
   executeLED();
 }
+bool ledON() {
+  ledStripON = true;
+  executeLED();
+  return true;
+}
+bool ledOFF()
+{
+  ledStripON = false;
+  executeLED();
+  return true;
+}
 
-void setLEDMode(int mode)
+void setLEDMode(long mode)
 {
   //ledMode = mode;
-  //prefs.putInt("ledMode", ledMode);  // store in preferences
   executeLED();
 }
 

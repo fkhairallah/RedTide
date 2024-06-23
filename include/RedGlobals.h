@@ -37,8 +37,10 @@ void handleOTA();
 // in lighting
 void configureLED();           // update with actual # of LED
 void testLED();               // test all LEDs
+bool ledON();
+bool ledOFF(); 
 void setLEDPower(char *mode); // set LED power
-void setLEDMode(int mode);    // & mode
+void setLEDMode(long mode);    // & mode
 void executeLED();
 void stripFill(uint32_t color);
 void fillList(uint32_t list[], int count);
