@@ -9,6 +9,9 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
 
 # Version History
 
+## Version 2.4
+  updated url to reflect NOAA 2025 changes
+
 ## Version 2.3
   - added ON/OFF swich for tides
 
