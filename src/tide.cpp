@@ -187,12 +187,14 @@ void getTide(struct tm now)
     // now we generate the GET request and get the JSON response from NOAA
 
     // form the URL
-    sprintf(url, "%s&station=%s&begin_date=%02d/%02d/%d&end_date=%02d/%02d/%d",
+    // in 2025 NOAA change the begin_date/end_date format to yyyymmdd
+    sprintf(url, "%s&station=%s&begin_date=%04d%02d%02d&end_date=%04d%02d%02d",
             NOAA_BASE_URL, NoaaStation,
-            now.tm_mon + 1, now.tm_mday, now.tm_year + 1900,
-            tomorrow.tm_mon + 1, tomorrow.tm_mday, tomorrow.tm_year + 1900);
+            now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, 
+            tomorrow.tm_year + 1900, tomorrow.tm_mon + 1, tomorrow.tm_mday );
 
-    // console.println(url);
+
+    if (debugMode) console.println(url);
 
     HTTPClient http;
     String payload; // response possibly containing JSON
