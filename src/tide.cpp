@@ -43,12 +43,21 @@ void homeStepper()
 
     stepper.setSpeed(10);
 
-    // if we're pegged -- move down then try hominh
-    if (digitalRead(LIMIT_SWITCH) == 0)
+    // if we're pegged -- move down until we clear the limit switch
+    while (digitalRead(LIMIT_SWITCH) == 0)
     {
-        stepper.step(-1000);
-        if (debugMode)
-            console.print("Limit hit--- descending a bit...");
+        stepper.step(-500);
+        if (debugMode) console.print("Limit hit--- descending a bit...");
+        markerLocation -= 500;
+        if (markerLocation <= -STEPPER_MAX_RANGE)
+        {
+            disableStepper = true;
+            idleStepper();
+            console.println("Cannot Home marker. Too many steps...");
+            // flashLEDs to indicate failure
+            flashLEDs();
+            return;
+        }
     }
 
     while (digitalRead(LIMIT_SWITCH) != 0)

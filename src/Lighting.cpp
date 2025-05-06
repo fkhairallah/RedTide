@@ -202,3 +202,23 @@ void setTideMarker(char t)
   FastLED.show();
   FastLED.delay(50);
 }
+
+
+// flash the tide marker LEDS FOR 30S to indicate an error
+void flashLEDs()
+{
+  unsigned long startTime = millis();
+  const unsigned long FLASH_DURATION = 30000; // 30 seconds in milliseconds
+  
+  while (millis() - startTime < FLASH_DURATION) 
+  {
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::Red);
+    FastLED.show();
+    FastLED.delay(500); // On for 500ms
+    
+    fill_solid(tideLEDS, NUM_LEDS_TIDE, CRGB::Black);
+    FastLED.show();
+    FastLED.delay(500); // Off for 500ms
+  }
+}
+

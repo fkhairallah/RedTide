@@ -9,6 +9,9 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
 
 # Version History
 
+## Version 2.5
+  change the way homing is done because needle gets stuck on top sometimes.
+
 ## Version 2.4
   updated url to reflect NOAA 2025 changes
 

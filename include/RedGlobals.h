@@ -8,7 +8,7 @@
 #include <PubSubClient.h>
 #include <Preferences.h>
 
-#define VERSION "V2.4" // N.B: document changes in README.md
+#define VERSION "V2.5" // N.B: document changes in README.md
 
 // include Pins
 #ifndef _PINS_H
@@ -53,6 +53,7 @@ void testLED();               // test all LEDs
 void setLEDPower(char *mode); // set LED power
 void setLEDMode(int mode);    // & mode
 void executeLED();
+void flashLEDs();
 void stripFill(uint32_t color);
 void fillList(uint32_t list[], int count);
 void fillRainbow();
