@@ -229,12 +229,12 @@ void getTide(struct tm now)
     // Free resources
     http.end();
 
-    DynamicJsonDocument json(4096);
+    JsonDocument json;
     auto deserializeError = deserializeJson(json, payload);
     // serializeJson(json, Serial);
     if (!deserializeError)
     {
-        if (json.containsKey("predictions"))
+        if (json["predictions"].is<JsonArray>())
         {
             JsonArray tides = json["predictions"];
             if (debugMode)
@@ -292,6 +292,11 @@ void getTide(struct tm now)
                         console.println("***TIME ASSIGNMENT FAILED***");
                 }
             }
+        }
+        else
+        {
+            console.println("NOAA did not send a valid JSON array");
+            invalidTide = true;
         }
     }
 }
