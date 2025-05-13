@@ -75,7 +75,7 @@ void subscribeToTopics()
 
   // tide on/off topic, start with ON
   mqtt_client.subscribe(mqtt_tide_command);
-  mqtt_client.publish(mqtt_tide_command, "ON");
+  //mqtt_client.publish(mqtt_tide_command, "ON");
 
   // debug topic (?)
   mqtt_client.subscribe(mqtt_debug_set_topic);
@@ -251,6 +251,8 @@ bool checkMQTTConnection() {
       char str[128];
       sprintf(str, "%s %s: @[%s] IP:%i.%i.%i.%i", clientName, VERSION, deviceLocation, WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
       mqtt_client.publish(mqtt_debug_topic, str, true);
+
+      // read the /tide topic to get the current settings
       secondsWithoutMQTT = 0;
       return true;
     }
