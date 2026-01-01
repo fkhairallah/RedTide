@@ -9,6 +9,10 @@ It is based on RedLED under-cabinet lighting program that was superseeded with W
 
 # Version History
 
+## Version 2.6
+  - Fixed homing logic to detect and handle startup at topmost position
+  - Prevents stepper motor from being disabled when powered up with limit switch already pressed
+
 ## Version 2.5
   change the way homing is done because needle gets stuck on top sometimes.
 

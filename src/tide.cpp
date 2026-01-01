@@ -37,9 +37,14 @@ void homeStepper()
 
     if (debugMode)
         console.print("Homing Stepper...");
-    markerLocation = 0;
 
     pinMode(LIMIT_SWITCH, INPUT_PULLUP);
+
+    // to get full range of mostion we start at the bottom
+    markerLocation = 0;
+    
+    // if the limit switch is already hit, assume we are at the top
+    if (digitalRead(LIMIT_SWITCH) == 0) markerLocation = STEPPER_MAX_RANGE;
 
     stepper.setSpeed(10);
 

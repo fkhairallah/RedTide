@@ -8,7 +8,7 @@
 #include <PubSubClient.h>
 #include <Preferences.h>
 
-#define VERSION "V2.5" // N.B: document changes in README.md
+#define VERSION "V2.6" // N.B: document changes in README.md
 
 // include Pins
 #ifndef _PINS_H
@@ -82,6 +82,8 @@ extern struct tm lastTideTime;   // time of last tide event
 extern double tideCycleLength;   // length of this tide cycle in minutes
 extern double stepsPerMinute;    // depending on tide cycle, number of steps per minute
 extern int markerLocation;
+extern bool disableStepper;
+extern bool invalidTide;
 void configureTide();
 void pauseTideUpdate();
 void resumeTideUpdate();

@@ -27,7 +27,7 @@ void printLocalTime()
 
  * ********************************************************************************
 */
-#define CUSTOM_COMMANDS "Custom Commands: step n, home, status, on, off, mode #, topled #, bottomled #, test, noaa"
+#define CUSTOM_COMMANDS "Custom Commands: step n, enable (stepper), home, status, on, off, mode #, topled #, bottomled #, test, noaa"
 
 void executeCustomCommands(char* commandString,char* parameterString)
 {
@@ -47,7 +47,14 @@ void executeCustomCommands(char* commandString,char* parameterString)
     console.printf("Marker at %i. cycle is %.1f, %.1f steps per minute\r\n", markerLocation, tideCycleLength, stepsPerMinute);
     console.print(&lastTideTime, "Last tide was @%A, %B %d %Y %H:%M:%S");
     console.println(&nextTideTime, ", next one @%A, %B %d %Y %H:%M:%S\r\n");
+    console.println(disableStepper?"Stepper Disabled":"Stepper Enabled");
     //console.printf("Prefs ledMode=%i,%s MQTT=%s #%s\r\n", prefs.getInt("ledMode"), prefs.getString("deviceLocation"), prefs.getString("mqtt_server"), prefs.getString("topLED"));
+  }
+
+  if (strcmp(commandString, "enable") == 0)
+  {
+    disableStepper = false;
+    console.println("Stepper Enabled");
   }
 
   if (strcmp(commandString, "topled") == 0)
